@@ -107,6 +107,9 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 .pn button{font-size:12px;color:var(--sub);border:1px solid var(--line2);border-radius:12px;padding:10px;text-align:center}
 .sheet .x{position:sticky;top:0;float:right;margin:-4px -8px 0 0;width:36px;height:36px;display:grid;place-items:center;color:var(--sub);z-index:2}
 
+.source-note{font-size:12px;color:var(--sub);line-height:1.9;margin-top:12px}
+.source-link{font-size:12px;color:var(--text);text-decoration:underline;overflow-wrap:anywhere}
+
 /* ---------- search overlay ---------- */
 .searcho{position:fixed;inset:0;z-index:80;background:var(--bg);display:none;flex-direction:column}
 .searcho.on{display:flex}
@@ -149,8 +152,9 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 <div class="page">
   <section class="hero">
     <h1 class="serif">138億年の人類史</h1>
-    <div class="revhead"><span>まず、5つの転換点だけ。</span></div>
+    <div class="revhead"><span>5つの転換点で見る</span></div>
     <div class="revs" id="revs"></div>
+    <p class="source-note">全体像をつかむための、このサイト独自の整理です。</p>
   </section>
   <div id="timeline"></div>
 </div>
@@ -197,6 +201,7 @@ function frac(y){
 }
 
 let ERA_BY_ID={}, evIndex=new Map(), currentSheet=0;
+let returnToSearch=false;
 
 function makeCard(ev){
   const era=ERA_BY_ID[ev.era];
@@ -244,6 +249,11 @@ function buildTimeline(){
 function openEvent(id){
   const i=EVENTS.findIndex(e=>e.id===id);
   if(i<0)return;
+  if($("#searcho").classList.contains("on")){
+    returnToSearch=true;
+    $("#searcho").classList.remove("on");
+    $("#sinput").blur();
+  }
   currentSheet=i;
   renderSheet();
   $("#scrim").classList.add("on");
@@ -254,7 +264,14 @@ function openEvent(id){
 function closeSheet(){
   $("#scrim").classList.remove("on");
   $("#sheet").classList.remove("on");
-  document.body.style.overflow="";
+  if(returnToSearch){
+    returnToSearch=false;
+    $("#searcho").classList.add("on");
+    document.body.style.overflow="hidden";
+    $("#sClose").focus();
+  }else{
+    document.body.style.overflow="";
+  }
 }
 function renderSheet(){
   const ev=EVENTS[currentSheet], era=ERA_BY_ID[ev.era];
@@ -266,8 +283,11 @@ function renderSheet(){
     <div class="pillrow" style="--c:${era.color}"><span class="pill">${esc(era.name)}</span><time>${esc(ev.label)}</time></div>
     <h3 class="serif">${esc(ev.t)}</h3>
     <p class="d">${esc(ev.d)}</p>
+    ${ev.note?`<p class="source-note">${esc(ev.note)}</p>`:""}
+    <div class="sect">参考資料</div>
+    ${ev.sources?.length?ev.sources.map(s=>`<p><a class="source-link" href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)} ↗</a></p>`).join(""):'<p class="source-note">個別資料との照合は未完了です。この項目は学習用の概説であり、年代・解釈は今後見直します。</p>'}
     <div class="tags">${ev.tags.map(t=>`<span class="tag">#${esc(t)}</span>`).join("")}</div>
-    <div class="sect">関連する出来事</div>
+    <div class="sect">共通テーマの出来事</div>
     <div class="rel">${rel.map(v=>`<button data-ev="${EVENTS[v.j].id}"><span class="ry">${esc(EVENTS[v.j].label)}</span>${esc(EVENTS[v.j].t)}</button>`).join("")||'<span class="tag">—</span>'}</div>
     <div class="pn">
       <button data-ev="${EVENTS[(currentSheet-1+EVENTS.length)%EVENTS.length].id}">← 前の出来事</button>
@@ -313,8 +333,8 @@ function scrollToEra(id){
 }
 
 /* search */
-function openSearch(){$("#searcho").classList.add("on");$("#sinput").focus();renderSearch();}
-function closeSearch(){$("#searcho").classList.remove("on");$("#sinput").value="";renderSearch();}
+function openSearch(){document.body.style.overflow="hidden";$("#searcho").classList.add("on");$("#sinput").focus();renderSearch();}
+function closeSearch(){document.body.style.overflow="";$("#searcho").classList.remove("on");$("#sinput").value="";renderSearch();}
 function renderSearch(){
   const q=$("#sinput").value.trim();
   const cnt=$("#scount"), res=$("#results"), hint=$("#shint");
@@ -341,7 +361,7 @@ $("#searchBtn").addEventListener("click",openSearch);
 $("#sClose").addEventListener("click",closeSearch);
 $("#sinput").addEventListener("input",renderSearch);
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"){closeSheet();closeSearch();}
+  if(e.key==="Escape"){if($("#sheet").classList.contains("on"))closeSheet();else closeSearch();}
 });
 addEventListener("scroll",schedule,{passive:true});
 addEventListener("resize",schedule);
@@ -360,17 +380,17 @@ const ERAS=[
 {id:"origin",name:"起源",range:"ビッグバン〜30万年前",from:-13800000000,to:-300000,color:"#a08bd8",
  blurb:"宇宙から人類まで、138億年。星々が重い元素を作り、地球が生まれ、海で生命が育った。この途方もない前史の果てに、ようやく「私たち」が登場する。人類自身の歴史は、実全体の長さに比べればごく浅い表面にすぎない。そしてこの時代の終わりには、地球上に複数の「人類」が並び立っていた。"},
 {id:"forager",name:"狩猟採集",range:"約30万〜1万年前",from:-300000,to:-10000,color:"#c9a23c",
- blurb:"言語と「虚構」を語る力を得たサピエンスが、地球の隅々へ広がる。小さな集団で自然とともに生きる時代は人類史の9割以上を占め、変化は緩やかで、格差も小さかった。私たちの身体と心は、この時代でほぼ完成している。"},
+ blurb:"言語と「虚構」を語る力を得たサピエンスが、地球の隅々へ広がる。小さな集団で自然とともに生きる時代は人類史の9割以上を占め、変化は緩やかで、格差も小さかった。身体や認知には長い狩猟採集生活で形成された特徴が残るが、その後も進化と文化的変化は続いている。"},
 {id:"agri",name:"農業革命",range:"約1万〜5500年前",from:-10000,to:-5200,color:"#7e9e4f",
  blurb:"氷期の終わりと気候の安定を追い風に、人類は植物と動物を飼いならす。食べられる場所が増えて人口が爆発し、定住と余剰が生まれた。ただし労働は増え、栄養は偏り、病気は広がった — 「進歩」の最初の代償でもある。"},
 {id:"civ",name:"文明の誕生",range:"約5500〜2800年前",from:-5200,to:-2800,color:"#c77e3e",
- blurb:"余剰を数えて管理する必要から、文字と官僚制が生まれた。都市と国家が立ち上がり、王と神、税と法が発明される。少数のエリートが多数を統治するという社会の構造は、ここで一度に完成する。"},
+ blurb:"余剰を数えて管理する必要から、文字と官僚制が生まれた。都市と国家が立ち上がり、王と神、税と法が発明される。一部の地域では階層化と統治制度が発達した。ただし、その成立過程と形態には大きな地域差がある。"},
 {id:"classic",name:"古代帝国",range:"紀元前2800年〜紀元500年",from:-2800,to:500,color:"#b54d62",
- blurb:"軸軸時代、ユーラシアの各地で普遍的な思想と宗教が花開く。ペルシア、ローマ、漢といった大帝国が広域を統治し、シルクロードが東西を結んだ。帝国と普遍宗教という「世界」の枠組みは、以後2000年使われ続ける。"},
+ blurb:"枢軸時代、ユーラシアの各地で普遍的な思想と宗教が花開く。ペルシア、ローマ、漢といった大帝国が広域を統治し、シルクロードが東西を結んだ。帝国と普遍宗教という「世界」の枠組みは、以後2000年使われ続ける。"},
 {id:"medieval",name:"中世",range:"500〜1450年",from:500,to:1450,color:"#4665b8",
  blurb:"イスラーム、キリスト教、仏教という世界宗教が社会の骨格となった時代。ペストや戦乱の合間に、宋の経済革命やモンゴルによるユーラシアの平定があり、世界は少しずつ、確実に繋がっていった。"},
 {id:"early",name:"近世",range:"1450〜1760年",from:1450,to:1760,color:"#3fa0a8",
- blurb:"大航海が世界をひとつの経済に結び、活版印刷が知識のコストを暴落させ、科学革命が自然の見方を根底から変えた。産業革命に必要な部品 — 資本・市場・科学・国家 — は、すべてこの時代に揃う。"},
+ blurb:"大航海が世界をひとつの経済に結び、活版印刷が知識のコストを暴落させ、科学革命が自然の見方を根底から変えた。資本・市場・科学・国家の変化が、のちの産業化につながる背景の一部となった。"},
 {id:"modern",name:"近代",range:"1760〜1945年",from:1760,to:1945,color:"#a85c8f",
  blurb:"石炭と蒸気が人間の筋肉を置き換え、国民国家と資本主義が世界を再編した。生活水準は史上初めて飛躍的に上昇する一方、帝国主義、世界大戦、ホロコーストという新たな惨禍も同じ土台から生まれた。"},
 {id:"now",name:"現代",range:"1945年〜現在",from:1945,to:2100,color:"#e0574f",
@@ -419,9 +439,9 @@ const EVENTS=[
  s:"人類初の「グローバル種」がアフリカを出た。",
  d:"体格が大きく歩行に優れたホモ・エレクトスは、ユーラシア大陸へ分布を広げ、東アジアや東南アジアまで到達した。アシュール文化の手斧（ハンドアックス）へと石器も進化し、長距離の移動と計画的な行動が可能になった。",
  tags:["人類","進化"]},
-{id:"fire",era:"origin",y:-800000,label:"約80万年前",t:"火の制御",
- s:"外のエネルギーを使い、調理が脳を大きくした。",
- d:"暖房・防衛・調理。とくに調理は消化を体外で行うことに等しく、少ない臓器コストで高カロリーを得られるようにした。ランガムの「調理仮説」では、これが大型化する脳を支えたとされる。人類最初の技術革命である。",
+{id:"fire",era:"origin",y:-1000000,label:"約100万年前",t:"火の制御",
+ s:"洞窟の奥に持ち込まれた火。最古級の証拠は約100万年前、新しい研究ではさらに古い。",
+ d:"火の利用の最古級の証拠は、南アフリカのワンダーワーク洞窟。約100万年前の地層（層準10）から、焼けた骨・石器・灰が同じ層から見つかり、天然火ではなく持ち込まれた火と結論された（2012年）。2026年には新しい発光分析法で、さらに古い約179万〜107万年前の地層（層準11）からも火の痕跡が確認され、火の利用の起点が更新された。ただし早い段階では天然の火を採って消えないうちに持ち込み維持していたとみられ、火をおこす「制御」の最古の証拠は約80万年前のイスラエル（ゲシェル・ベノト・ヤアコフ）。調理が脳の大型化を支えたという調理仮説は有力だが、確定した説ではない。",
  tags:["人類","技術","エネルギー"]},
 {id:"heidelberg",era:"origin",y:-600000,label:"約60万年前",t:"ホモ・ハイデルベルゲンシス",
  s:"ネアンデルタール人と私たちサピエンスの、直近の共通祖先。",
@@ -440,13 +460,13 @@ const EVENTS=[
  s:"「虚構」を語れる言語を得て、大規模協力が可能になった。",
  d:"サピエンスの言語は、実際のこと以外に「ないもの・あり得ないもの」を語れた。神々や部族の掟といった共有された架空の物語が、血縁を超えた数百人の協力を可能にした。ハラリの『サピエンス全史』でも、大規模協力を支えるのは共有された物語だと示されている。",
  tags:["言語","宗教","協力"]},
-{id:"aus",era:"forager",y:-65000,label:"約6万5000年前",t:"オーストラリア到達",
- s:"乗り物も地図もないのに、海を渡って大陸に渡った。",
- d:"當時の海面より低かったとはいえ、見えない陸地への70km以上の航海を含む移動だったとされる。到達後まもなく大型動物の大量絶滅が起き、狩猟技術と火の利用が「世界の姿」を初めて大きく変えた。",
+{id:"aus",era:"forager",y:-60000,label:"約6万年前ごろ",t:"オーストラリア到達",
+ s:"約6万年前ごろ（5万〜6.5万年の幅）。海を渡って大陸に到達した。",
+ d:"海も地図もないなか、見えない陸地への航海を経てサフール大陸（氷期のオーストラリアとニューギニア）へ到達した。最古級の証拠は北部のマッジベベ遺跡で、約6万5000年前という報告（2017年）がある。ただしこの年代には批判もあり（2018年）、考古学だけでは確定しない。2026年のミトコンドリアDNA大規模解析（約2500体）は、先住オーストラリア人とニューギニア人だけに残る最古の系統を約6万年前と推定し、長い年代観を支持。少なくとも2つのルートから移動した可能性が高い。到達後まもなく大型動物の大量絶滅が進み、人類が世界の姿を初めて大きく変えた例とされる。",
  tags:["移動","環境"]},
 {id:"art",era:"forager",y:-36000,label:"約3万6000年前",t:"洞窟壁画の全盛",
- s:"シュヴァル洞窟など、象徴と芸術の爆発。",
- d:"フランスのシュヴァル洞窟には3万6000年前の動物画がびっしりと描かれ、のちのショーヴェ、ラスコー、アルタミラへと続く。抽象的な記号も共通して見られ、サピエンスの世界には「意味」が満ちていた。",
+ s:"ショーヴェ洞窟など、象徴と芸術の爆発。",
+ d:"フランスのショーヴェ洞窟には3万6000年前の動物画が描かれ、のちのラスコー、アルタミラへと続く。抽象的な記号も共通して見られ、サピエンスの世界には「意味」が満ちていた。",
  tags:["芸術","宗教"]},
 {id:"neanderthal",era:"forager",y:-40000,label:"約4万年前",t:"ネアンデルタール人の消長",
  s:"人類は一種になった。ただし遺伝子は混ざった。",
@@ -530,9 +550,9 @@ const EVENTS=[
 
 EVENTS.push(
 /* ---- 古代帝国 ---- */
-{id:"axial",era:"classic",y:-800,label:"紀元前800年頃",t:"軸軸時代の始まり",
+{id:"axial",era:"classic",y:-800,label:"紀元前800年頃",t:"枢軸時代の始まり",
  s:"ギリシャ・インド・中国で、普遍的な思想がほぼ同時に花開く。",
- d:"ヤスパースの命名した「軸軸時代」に、ギリシャ哲学、仏教、諸子百家、預言者の宗教がほぼ同時期に登場した。人間は「自分がどう生きるべきか」を普遍的な問いとして立て始めた。偶然か、交流の結果か、いまも論じられている。",
+ d:"ヤスパースの命名した「枢軸時代」に、ギリシャ哲学、仏教、諸子百家、預言者の宗教がほぼ同時期に登場した。人間は「自分がどう生きるべきか」を普遍的な問いとして立て始めた。偶然か、交流の結果か、いまも論じられている。",
  tags:["哲学","宗教"]},
 {id:"confucius",era:"classic",y:-551,label:"紀元前551年",t:"孔子の誕生",
  s:"家族と社会の倫理を説き、東アジアのOSを作った。",
@@ -628,6 +648,10 @@ EVENTS.push(
  s:"免罪符への95カ条の提唱が、西欧の精神統一を割った。",
  d:"ルターの主張は活版印刷で数週間で全欧に広がった。教皇の権威に対し「聖書と信仰のみ」を掲げる運動は、国家の枠組みや読み書きの普及をも引き起こし、近代的な個人観の源流となる。",
  tags:["宗教","情報"]},
+{id:"ptolemy",era:"classic",y:150,label:"西暦150年",t:"プトレマイオス『アルマゲスト』",
+ s:"天動説の大体系。以後約1400年、世界の標準となった。",
+ d:"2世紀の天文学者プトレマイオスは、地球を中心に太陽と惑星が回る体系を『アルマゲスト』にまとめ、惑星の複雑な見かけの運動を周転円の組合せで精密に説明した。予測力の高さから、天文表や暦の基礎としてビザンツ・イスラーム・ヨーロッパで使われ続けた。地動説に置き換わるまでの約1400年は、コペルニクス（1543年）が覆すべき相手であり、科学史における「長く生きる大体系」の代表例である。",
+ tags:["科学","宇宙"]},
 {id:"copernicus",era:"early",y:1543,label:"1543年",t:"地動説の出版",
  s:"人間の居場所が宇宙の中心から外される。",
  d:"コペルニクスは肉眼の観測と数学だけで、太陽中心の体系を提示した。ガリレオの望遠鏡とケプラーの楕円軌道を経て、ニュートンが重力で統一する。「観測と数学で世界を調べる」科学革命の始まりである。",
@@ -640,7 +664,7 @@ EVENTS.push(
  s:"約250年の無戦国。独自に熟成する都市文化。",
  d:"幕府は対外関係を管理下に置いたが、国内では参勤交代の街道、大坂の市場、江戸の100万人都市が発達し、読本や浮世絵という大衆文化が咲いた。閉じた時代だからこそ積み上がった内発的な発展という見方もできる。",
  tags:["日本","経済"]},
-{id:"newton",era:"early",y:1687,label:"1687年",t:"ニュートン『プリンキピア』",
+{id:"newton",era:"early",y:1687,label:"1687年",t:"万有引力の発見",
  s:"天上も地上も同じ法則。世界が機械として読める。",
  d:"万有引力はケプラーの惑星とガリレオの落下をひとつの数学で統一した。自然が「法則」に従うなら、社会や経済にも法則があるはずだ — この発想が啓蒙思想と近代科学技術文明の前提になる。",
  tags:["科学"]},
@@ -665,6 +689,50 @@ EVENTS.push(
  s:"夜が消え、工場と家がひとつの電力網に繋がる。",
  d:"エジソンの白熱電球と配電システムは、照明と動力を電気へ移す第二次産業革命の象徴である。モーター、電話、ラジオ、テレビ — 20世紀の生活はすべてこの電力インフラの上に載っている。",
  tags:["エネルギー","技術"]},
+{id:"quantum",era:"modern",y:1900,label:"西暦1900年",t:"量子論の誕生",
+ s:"世界は、つながった量ではなく飛び飛びの量で動いていた。",
+ d:"1900年、プランクは熱放射のスペクトルを説明するために、エネルギーが「量子」という飛び飛びの単位で放たれるという仮説を導入した。1905年にアインシュタインが光電効果を光量子で説明し、ボーアの原子模型を経て、1920年代にハイゼンベルクとシュレーディンガーが量子力学を完成させ、不確定性原理が世界の記述の限界を示した。直観に反するこの理論は、半導体・レーザー・核エネルギーの基礎となり、1947年のトランジスタはその応用である。",
+ tags:["科学","物理"]},
+{id:"relativity",era:"modern",y:1915,label:"西暦1915年",t:"アインシュタイン、相対性理論",
+ s:"時間と空間は絶対ではなく、観測者と重力で変わる。",
+ d:"1905年に特殊相対性理論（光速は不変で、時間と空間は観測者の運動によって変わる）を発表した。アインシュタインが1921年に受けたノーベル賞は相対性理論ではなく、光電効果の理論に対するものだった。1915年の一般相対性理論は重力を、質量が時空を曲げる効果として説明し、1919年の皆既日食で星の光の曲がりが観測されて評価を確立した。のちの宇宙論・ブラックホール研究の基礎であり、GPSの補正にも使われている。",
+ tags:["科学","物理"]},
+{id:"tycho",era:"early",y:1572,label:"西暦1572年",t:"ティコ・ブラーエの精密観測",
+ s:"新星が現れ、天は不変ではないと分かった。残されたのは歴代最高のデータ。",
+ d:"1572年、ティコはカシオペヤ座に突然現れた新星（超新星）を観測した。月より遠くにあることを示し、「天は不変」という古い教義が崩れた。デンマーク王の支援でウラニボリ給観測所を建て、望遠鏡以前の観測技術の限界を極めて、惑星の位置を歴代最高精度（誤差約1〜2分角）で20年間記録した。地動説には距離論から最後まで懐疑的だったが、彼の真の遺産はこのデータだった。晩年の助手ケプラーに渡った火星の観測記録が、軌道理論を更新する。コペルニクス（1543）とガリレオ（1610）の間をつなぐ、観測の土台である。",
+ tags:["科学","宇宙"]},
+{id:"kepler",era:"early",y:1609,label:"西暦1609年",t:"楕円軌道の発見",
+ s:"惑星の軌道は円ではなく楕円だった。2000年の円信仰が終わった。",
+ d:"ティコの火星観測データと、円軌道の理論の間にわずか8分角のずれを発見したケプラーは、円への執着を捨て、1609年に楕円軌道と面積速度法則（第1・第2法則）、1619年に周期の法則（第3法則）を導いた。惑星の運動が「完璧な円」という古代以来の信念ではなく、数学的な法則で精密に記述できると示した。なぜ楕円なのかは当時謎のままで、その答えはニュートンの万有引力（1687年）まで待つことになる。",
+ tags:["科学","宇宙"]},
+{id:"galileo",era:"early",y:1610,label:"西暦1610年",t:"望遠鏡観測の始まり",
+ s:"天体は、地球と同じ物質でできていた。",
+ d:"1609年に自作の望遠鏡で天を観測したガリレオは、木星の衛星、月の山、金星の満ち欠けを発見した。天が完璧で不変な別世界ではなく、地球と同じ物理法則に従うことを示唆する観測だった。コペルニクスの地動説に実証的な裏付けを与え、観測と検証を重んじる近代科学の流れを決定づけ、のちのニュートンによる万有引力の統一へ続く。",
+ tags:["科学","宇宙"]},
+{id:"vaccine",era:"modern",y:1796,label:"西暦1796年",t:"種痘と細菌説——医学革命",
+ s:"病の原因が見えるようになって、寿命が倍になった。",
+ d:"1796年、ジェンナーが牛痘接種で天然痘の予防を実証した（ワクチンの始まり）。1854年、スノーはコレラ死者の分布を地図に重ね、水源が感染経路だと突き止めた。1860〜80年代にパスツールとコッホが細菌説を確立し、「病気の原因」が目に見える対象になった。衛生・清掃・ワクチン・消毒の組み合わせは、先進国の平均寿命を19世紀の40歳前後から20世紀に倍増させた。科学が死因を変えた最初の大例である。",
+ tags:["科学","医療"]},
+{id:"penicillin",era:"modern",y:1928,label:"西暦1928年",t:"ペニシリンの発見",
+ s:"カビの一種が、感染症との最初の勝利をもたらした。",
+ d:"1928年、フレミングが培養皿に混入したアオカビがブドウ球菌を殺すのに気づいた。フローリーとチェインが1940年代に実用化し、三人は1945年のノーベル生理学・医学賞を受けた。抗生物質の時代が開き、肺炎や敗血症、戦傷感染が治る病気になった。手術と臓器移植が安全になる一方、使いすぎによる耐性菌が新たな脅威として残った。",
+ tags:["科学","医療"]},
+{id:"hubble",era:"modern",y:1929,label:"西暦1929年",t:"宇宙の膨張の発見",
+ s:"遠い銀河ほど速く遠ざかる。宇宙は広がり続けている。",
+ d:"ハッブルは銀河の後退速度と距離の関係（ハッブル・ルメートルの法則）を示し、宇宙が膨張していることを観測で裏づけた。これは静的な宇宙という常識を覆し、ルメートルの「原始原子」から始まるビッグバン宇宙論への道となった。1964年に宇宙背景放射が発見されて定説となり、このタイムラインの最初の項目「ビッグバン」は、こうして観測と結びついた。宇宙の年齢を測る試みも、この発見から始まっている。",
+ tags:["科学","宇宙"]},
+{id:"dna",era:"now",y:1953,label:"西暦1953年",t:"DNA二重らせん構造",
+ s:"生命の設計図が、物理構造として読める物になった。",
+ d:"ワトソンとクリックが1953年、DNAの二重らせん構造を発表した。フランクリンのX線回折写真とウィルキンスのデータが決め手となり、その構造自体が「コピーの仕組み」を示していた。遺伝情報がDNAの塩基配列に書かれていることが確定し、遺伝学は分子の科学に転換した。のちのゲノム解読、遺伝子治療、ゲノム編集は、すべてこの扉から始まっている。",
+ tags:["科学","生命"]},
+{id:"tectonics",era:"now",y:1968,label:"西暦1968年ごろ",t:"プレートテクトニクスの確立",
+ s:"大陸は動いていた。地球科学がひとつの理論にまとまった。",
+ d:"1912年、ウェゲナーの大陸移動説はメカニズムが示せず長く退けられた。1960年代、海底拡大の証拠（海底の磁気の縞模様など）が蓄積し、1968年ごろに地球表面が十数枚のプレートで覆われるという理論として確立した。地震・火山・山脈・大陸の配置が単一の枠組みで説明され、大陸の分裂や古気候の復元など地球史の読み方が一変した。日本の地震・火山研究の基盤でもある。",
+ tags:["科学","地球"]},
+{id:"crispr",era:"now",y:2012,label:"西暦2012年ごろ",t:"ゲノム編集（CRISPR）",
+ s:"DNAの狙った場所を切って書き換えられるようになった。",
+ d:"2003年にヒトゲノムの解読が完了し、2012年ごろ、ダウドナとシャルパンティエが細菌の免疫系を応用したCRISPR-Cas9によるゲノム編集法を確立し（2020年ノーベル化学賞）、誰でも使える分子工具になった。農作物の品種改良、遺伝病治療（鎌状赤血球症の治療薬が2023年に承認）、基礎研究を一変させた。一方、受精卵の編集など人間の遺伝をどう扱うかという倫理的課題も同時に始まった。",
+ tags:["科学","生命"]},
 {id:"ww1",era:"modern",y:1914,label:"1914年",t:"第一次世界大戦",
  s:"機械化された総力戦が、4つの帝国を滅ぼした。",
  d:"鉄道と動員、機関銃と毒ガス。約7000万人が動員され、1000万人以上が死んだ。戦後はウイルス性インフルエンザがさらに数千万人を奪い、欧州中心の秩序は崩れ、米国とソ連の時代の予兆となる。",
@@ -723,9 +791,152 @@ EVENTS.push(
  d:"気候変動、AI、老化の制御、宇宙進出 — 私たちは種の未来を実質的に決められる初めての世代である。このタイムラインの次の「大きな流れ」を書くのは、この画面を見ている誰かだ。",
  tags:["未来"]}
 );
+
+const DATE_REFERENCE=2000;
+function yearText(y){return y<0?`紀元前${Math.abs(y).toLocaleString("ja-JP")}年`:`西暦${y.toLocaleString("ja-JP")}年`;}
+function ageText(age){
+  if(age>=1e8)return `${Number((age/1e8).toFixed(2))}億`;
+  if(age>=1e4)return `${Number((age/1e4).toFixed(2))}万`;
+  return age.toLocaleString("ja-JP");
+}
+function normalizeContent(){
+  const byId=Object.fromEntries(EVENTS.map(e=>[e.id,e]));
+  // These original records used negative elapsed years rather than BCE.
+  for(const e of EVENTS)if(["origin","forager"].includes(e.era)&&e.id!=="gobekli")e.y+=DATE_REFERENCE;
+  Object.assign(byId.habilis,{
+    y:-2398000,t:"ホモ・ハビリス",
+    s:"初期のホモ属の一種。約240万〜140万年前にアフリカで生息した。",
+    d:"ホモ・ハビリスは、東部・南部アフリカに生息した初期のホモ属の一種。『器用な人』という名前は石器製作者と考えられたことに由来する。ただし同じ時代・地域には他の人類もおり、石器の製作者をハビリスだけに特定することはできない。約280万年前の初期ホモ属の顎骨を、そのままハビリスと同定することもできない。エレクトスとも生存期間が重なり、単純な一列の進化ではない。",
+    note:"生息年代・分類・祖先関係は、新しい化石や分析により見直される。",
+    sources:[{title:"スミソニアン：ホモ・ハビリス",url:"https://humanorigins.si.edu/evidence/human-fossils/species/homo-habilis"},{title:"ペンシルベニア州立大学：初期ホモ属の顎骨（約280万年前）",url:"https://www.psu.edu/news/research/story/earliest-known-fossil-genus-homo-dates-28-275-million-years-ago"}]
+  });
+  Object.assign(byId.oldowan,{
+    y:-3298000,t:"ロメクウィ3の石器",
+    s:"ケニアで報告された約330万年前の石器。初期ホモ属の証拠より古い。",
+    d:"ケニアのロメクウィ3では、約330万年前の地層から石器が報告された。2015年の論文は、石核を打ち割る作業や打撃作業の痕跡を示し、ロメクウィアンという名称を提案した。石器づくりをホモ属だけの特徴とみなす見方に再検討を迫る発見である。誰が作ったのかは特定されていない。",
+    note:"『最初に発明された時点』と『現在見つかっている証拠の年代』は異なる。",
+    sources:[{title:"Harmandほか（2015）：ロメクウィ3の約330万年前の石器",url:"https://pubmed.ncbi.nlm.nih.gov/25993961/"}]
+  });
+  Object.assign(byId.cognitive,{
+    t:"認知革命という見方",
+    s:"言語・象徴・共有する物語の重要性を考えるための整理。",
+    d:"このサイトでは、言語や象徴、共有する物語と大規模な協力の関係を考える入口として『認知革命』を置いている。約7万年前を唯一の転換点とする確定した区分ではない。能力の成立過程や変化の時期は、化石・考古資料・遺伝学などを通じて検討する必要がある。",
+    note:"解釈・整理のための項目。特定の年に言語や虚構が誕生したという意味ではない。"
+  });
+  // Era boundaries are editorial buckets, not universal historical periods.
+  const bounds=[-13800000000,-298000,-10000,-4000,-800,500,1450,1760,1945,2100];
+  ERAS.forEach((e,i)=>{
+    e.from=bounds[i];e.to=bounds[i+1];
+    e.range=i===0?"宇宙の誕生〜約30万年前":i===1?"約30万年前〜紀元前10,000年":i===8?"西暦1945年〜現在":`${yearText(e.from)}〜${yearText(e.to)}`;
+  });
+  for(const e of EVENTS){
+    const i=ERAS.findIndex((r,i)=>e.y>=r.from&&(e.y<r.to||i===ERAS.length-1));
+    if(i>=0)e.era=ERAS[i].id;
+    if(!["price","future"].includes(e.id)){
+      e.label=e.y < -10000?`約${ageText(DATE_REFERENCE-e.y)}年前`:`${yearText(e.y)}${e.y<0?"ごろ":""}`;
+    }
+  }
+  byId.habilis.label="約240万〜140万年前";
+  EVENTS.sort((a,b)=>a.y-b.y||a.id.localeCompare(b.id));
+}
+const SOURCES={
+bigbang:[{title:"NASA：宇宙の歴史",url:"https://science.nasa.gov/universe/overview/"}],
+earth:[{title:"NASA：太陽系の形成",url:"https://science.nasa.gov/astrobiology/learning-resources/alp/how-did-our-solar-system-form/"}],
+life:[{title:"Wikipedia：地球上で最も古い生命の痕跡",url:"https://en.wikipedia.org/wiki/Earliest_known_life_forms"}],
+split:[{title:"スミソニアン：サヘラントロプス",url:"https://humanorigins.si.edu/evidence/human-fossils/species/sahelanthropus-tchadensis"}],
+laetoli:[{title:"スミソニアン：ラエトリの足跡",url:"https://humanorigins.si.edu/evidence/behavior/footprints/laetoli-footprint-trails"}],
+erectus:[{title:"スミソニアン：ホモ・エレクトス",url:"https://humanorigins.si.edu/evidence/human-fossils/species/homo-erectus"}],
+fire:[{title:"Bernaほか（2012）PNAS：ワンダーワーク洞窟・約100万年前の原位置の火",url:"https://www.pnas.org/doi/10.1073/pnas.1117620109"},{title:"Marin-Monfortほか（2026）PLoS ONE：層準11（約179万〜107万年前）の火の証拠",url:"https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0347480"}],
+sapiens:[{title:"Science News：モロッコで最古のサピエンス化石",url:"https://www.science.org/content/article/world-s-oldest-homo-sapiens-fossils-found-morocco"}],
+heidelberg:[{title:"スミソニアン：ホモ・ハイデルベルゲンシス",url:"https://humanorigins.si.edu/evidence/human-fossils/species/homo-heidelbergensis"}],
+denisova:[{title:"Nature（2010）：デニソワ人のゲノム解析",url:"https://www.nature.com/articles/nature09710"}],
+oa2:[{title:"ロンドン自然史博物館：現代人のアフリカ流出",url:"https://www.nhm.ac.uk/discover/when-how-did-modern-humans-homo-sapiens-spread-out-of-africa.html"}],
+aus:[{title:"Clarksonほか（2017）Nature：マッジベベ遺跡・約6万5000年前の報告",url:"https://www.nature.com/articles/nature22968"},{title:"O’Connellほか（2018）PNAS：6万5000年前説への批判",url:"https://pubmed.ncbi.nlm.nih.gov/30082377/"},{title:"Science Advances（2026）：DNAが支持する約6万年前の到達",url:"https://www.science.org/doi/10.1126/sciadv.ady9493"}],
+neanderthal:[{title:"Wikipedia：ネアンデルタール人の絶滅",url:"https://en.wikipedia.org/wiki/Neanderthal_extinction"}],
+art:[{title:"Wikipedia：ショーヴェ洞窟",url:"https://en.wikipedia.org/wiki/Chauvet_Cave"}],
+flores:[{title:"スミソニアン：ホモ・フロレシエンシス",url:"https://humanorigins.si.edu/evidence/human-fossils/species/homo-floresiensis"}],
+jomon:[{title:"縄文遺跡群：大平山元遺跡",url:"https://jomon-japan.jp/en/learn/jomon-sites/odai-yamamoto"}],
+gobekli:[{title:"ユネスコ世界遺産：ギョベクリ・テペ",url:"https://whc.unesco.org/en/list/1572/"}],
+wheat:[{title:"Wikipedia：肥沃な三日月地帯",url:"https://en.wikipedia.org/wiki/Fertile_Crescent"}],
+livestock:[{title:"Wikipedia：ヒツジの家畜化",url:"https://en.wikipedia.org/wiki/Domestication_of_the_sheep"}],
+indep:[{title:"Wikipedia：農業の歴史",url:"https://en.wikipedia.org/wiki/History_of_agriculture"}],
+village:[{title:"ユネスコ世界遺産：チャタル・ホユック",url:"https://whc.unesco.org/en/list/1405/"}],
+uruk:[{title:"Wikipedia：ウルク",url:"https://en.wikipedia.org/wiki/Uruk"}],
+wheel:[{title:"Wikipedia：車輪",url:"https://en.wikipedia.org/wiki/Wheel"}],
+writing:[{title:"Wikipedia：楔形文字",url:"https://en.wikipedia.org/wiki/Cuneiform"}],
+egypt:[{title:"Wikipedia：ナルメル",url:"https://en.wikipedia.org/wiki/Narmer"}],
+pyramid:[{title:"Wikipedia：ギザの大ピラミッド",url:"https://en.wikipedia.org/wiki/Great_Pyramid_of_Giza"}],
+hammurabi:[{title:"ルーヴル美術館：ハンムラビ法典",url:"https://www.louvre.fr/en/the-code-of-hammurabi"}],
+bronze:[{title:"Wikipedia：青銅器時代の崩壊",url:"https://en.wikipedia.org/wiki/Late_Bronze_Age_collapse"}],
+zhou:[{title:"Lumen Learning：天命",url:"https://courses.lumenlearning.com/suny-hccc-worldcivilization/chapter/the-mandate-of-heaven/"}],
+axial:[{title:"Wikipedia：枢軸時代",url:"https://en.wikipedia.org/wiki/Axial_Age"}],
+confucius:[{title:"Wikipedia：孔子",url:"https://en.wikipedia.org/wiki/Confucius"}],
+buddha:[{title:"Wikipedia：釈迦",url:"https://en.wikipedia.org/wiki/The_Buddha"}],
+persia:[{title:"ブリタニカ：キュロス2世",url:"https://www.britannica.com/biography/Cyrus-the-Great"}],
+athens:[{title:"ブリタニカ：ソクラテスとアテネの民主政",url:"https://www.britannica.com/biography/Socrates/The-perceived-fragility-of-Athenian-democracy"}],
+alexander:[{title:"メトロポリタン美術館：アレクサンドロスの征服",url:"https://www.metmuseum.org/essays/the-rise-of-macedonia-and-the-conquests-of-alexander-the-great"}],
+qin:[{title:"Wikipedia：秦",url:"https://en.wikipedia.org/wiki/Qin_dynasty"}],
+yayoi:[{title:"Wikipedia：弥生時代",url:"https://en.wikipedia.org/wiki/Yayoi_period"}],
+rome:[{title:"Wikipedia：パクス・ロマーナ",url:"https://en.wikipedia.org/wiki/Pax_Romana"}],
+jesus:[{title:"Wikipedia：パウロ",url:"https://en.wikipedia.org/wiki/Paul_the_Apostle"}],
+paper:[{title:"Wikipedia：蔡倫",url:"https://en.wikipedia.org/wiki/Cai_Lun"}],
+westrome:[{title:"Wikipedia：西ローマ帝国の崩壊",url:"https://en.wikipedia.org/wiki/Fall_of_the_Western_Roman_Empire"}],
+hijra:[{title:"Wikipedia：ヒジュラ",url:"https://en.wikipedia.org/wiki/Hijrah"}],
+taras:[{title:"Wikipedia：タラスの戦い",url:"https://en.wikipedia.org/wiki/Battle_of_Talas"}],
+charlemagne:[{title:"Wikipedia：カール大帝",url:"https://en.wikipedia.org/wiki/Charlemagne"}],
+song:[{title:"コロンビア大学：宋の経済革命と紙幣",url:"https://afe.easia.columbia.edu/songdynasty-module/econ-rev-money.html"}],
+kamakura:[{title:"Wikipedia：源頼朝",url:"https://en.wikipedia.org/wiki/Minamoto_no_Yoritomo"}],
+crusade:[{title:"Wikipedia：第1回十字軍",url:"https://en.wikipedia.org/wiki/First_Crusade"}],
+mongol:[{title:"ブリタニカ：パクス・モンゴリカ",url:"https://www.britannica.com/event/Pax-Mongolica"}],
+plague:[{title:"Wikipedia：黒死病",url:"https://en.wikipedia.org/wiki/Black_Death"}],
+constantinople:[{title:"ブリタニカ：コンスタンティノープル陥落",url:"https://www.britannica.com/event/Fall-of-Constantinople-1453"}],
+printing:[{title:"ブリタニカ：ヨハネス・グーテンベルク",url:"https://www.britannica.com/biography/Johannes-Gutenberg"}],
+columbus:[{title:"Wikipedia：コロンブス交換",url:"https://en.wikipedia.org/wiki/Columbian_exchange"}],
+luther:[{title:"ブリタニカ：95カ条の論題",url:"https://www.britannica.com/event/Ninety-five-Theses"}],
+copernicus:[{title:"Wikipedia：天球回転論",url:"https://en.wikipedia.org/wiki/De_revolutionibus_orbium_coelestium"}],
+eic:[{title:"Wikipedia：オランダ東インド会社",url:"https://en.wikipedia.org/wiki/Dutch_East_India_Company"}],
+sakoku:[{title:"ブリタニカ：鎖国",url:"https://www.britannica.com/topic/sakoku"}],
+newton:[{title:"Wikipedia：プリンキピア",url:"https://en.wikipedia.org/wiki/Philosophi%C3%A6_Naturalis_Principia_Mathematica"}],
+watt:[{title:"ドイツ特許商標庁：1769年のワット特許",url:"https://www.dpma.de/docs/dpma/veroeffentlichungen/gb000176900913a_watt1769.pdf"}],
+frenchrev:[{title:"イェール大学：人間と市民の権利の宣言（原文）",url:"https://avalon.law.yale.edu/18th_century/rightsof.asp"}],
+darwin:[{title:"Wikipedia：種の起源",url:"https://en.wikipedia.org/wiki/On_the_Origin_of_Species"}],
+meiji:[{title:"コロンビア大学：明治維新と近代化",url:"https://afe.easia.columbia.edu/special/japan_1750_meiji.htm"}],
+edison:[{title:"米国勢調査局：1879年の白熱電球",url:"https://www.census.gov/newsroom/stories/incandescent-light-bulb.html"}],
+ww1:[{title:"Wikipedia：第一次世界大戦",url:"https://en.wikipedia.org/wiki/World_War_I"},{title:"Wikipedia：スペインかぜ",url:"https://en.wikipedia.org/wiki/Spanish_flu"}],
+depression:[{title:"米連邦準備制度：世界恐慌",url:"https://www.federalreservehistory.org/essays/great-depression"}],
+ww2:[{title:"国立WWII博物館：第二次世界大戦の犠牲者",url:"https://www.nationalww2museum.org/students-teachers/student-resources/research-starters/research-starters-worldwide-deaths-world-war"}],
+un:[{title:"国連ニュース：国連の設立",url:"https://news.un.org/en/story/2024/06/1151466"}],
+transistor:[{title:"Wikipedia：トランジスタの歴史",url:"https://en.wikipedia.org/wiki/History_of_the_transistor"}],
+sputnik:[{title:"NASA：宇宙時代の夜明け",url:"https://www.nasa.gov/history/dawn-of-the-space-age/"}],
+apollo:[{title:"NASA：アポロ11号",url:"https://www.nasa.gov/mission/apollo-11/"}],
+micro:[{title:"インテル：Intel 4004",url:"https://www.intel.com/content/www/us/en/history/virtual-vault/articles/the-intel-4004.html"}],
+berlin:[{title:"米国務省：ベルリンの壁崩壊",url:"https://history.state.gov/departmenthistory/short-history/berlinwall"}],
+www:[{title:"CERN：Webの誕生",url:"https://home.cern/science/computing/the-birth-of-the-web/"}],
+iphone:[{title:"Apple Newsroom（2007）：iPhone発表",url:"https://www.apple.com/newsroom/2007/01/09Apple-Reinvents-the-Phone-with-iPhone/"}],
+covid:[{title:"WHO：新型コロナのパンデミック",url:"https://www.who.int/europe/emergencies/situations/covid-19"}],
+ai:[{title:"OpenAI：ChatGPT",url:"https://openai.com/index/chatgpt/"}],
+cognitive:[{title:"ハラリ公式サイト：Sapiens",url:"https://www.ynharari.com/topic/power-and-imagination/"}],
+price:[{title:"Wikipedia：サピエンス全史",url:"https://en.wikipedia.org/wiki/Sapiens:_A_Brief_History_of_Humankind"}],
+quantum:[{title:"ブリタニカ：マックス・プランク",url:"https://www.britannica.com/biography/Max-Planck"},{title:"ブリタニカ：プランクの放射法則",url:"https://www.britannica.com/science/Plancks-radiation-law"}],
+relativity:[{title:"ブリタニカ：アルベルト・アインシュタイン",url:"https://www.britannica.com/biography/Albert-Einstein"}],
+tycho:[{title:"ブリタニカ：ティコ・ブラーエ",url:"https://www.britannica.com/biography/Tycho-Brahe-Danish-astronomer"}],
+kepler:[{title:"NASA：軌道とケプラーの法則",url:"https://science.nasa.gov/solar-system/orbits-and-keplers-laws/"},{title:"Wikipedia：ケプラーの法則",url:"https://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion"}],
+ptolemy:[{title:"Ptolemaic system | Definition & Facts",url:"https://www.britannica.com/science/Ptolemaic-system"}],
+galileo:[{title:"NASA：ガリレオの望遠鏡観測",url:"https://science.nasa.gov/solar-system/galileos-observations-of-the-moon-jupiter-venus-and-the-sun/"},{title:"ブリタニカ：ガリレオ・ガリレイ",url:"https://www.britannica.com/biography/Galileo-Galilei"}],
+vaccine:[{title:"BBC Bitesize：ジェンナーとワクチンの始まり",url:"https://www.bbc.co.uk/bitesize/guides/zxbqjsg/revision/6"},{title:"Open University：感染症史から学ぶ科学的手法",url:"https://www.open.edu/openlearn/ocw/mod/oucontent/view.php?id=28151&printable=1"}],
+penicillin:[{title:"米化学会：ペニシリンの発見と実用化",url:"https://www.acs.org/education/whatischemistry/landmarks/flemingpenicillin.html"},{title:"ノーベル財団：1945年生理学・医学賞",url:"https://www.nobelprize.org/prizes/medicine/1945/summary/"}],
+hubble:[{title:"PMC：ハッブルの図と宇宙の膨張",url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC314128/"},{title:"Wikipedia：ハッブルの法則",url:"https://en.wikipedia.org/wiki/Hubble%27s_law"}],
+dna:[{title:"Nature（1953）：核酸の構造（原著論文）",url:"https://www.nature.com/articles/171737a0"},{title:"Science History Institute：ワトソン・クリック・フランクリン・ウィルキンス",url:"https://www.sciencehistory.org/education/scientific-biographies/francis-crick-rosalind-franklin-james-watson-and-maurice-wilkins/"}],
+tectonics:[{title:"USGS：プレートテクトニクス理論の成立",url:"https://pubs.usgs.gov/gip/dynamic/developing.html"}],
+crispr:[{title:"ノーベル財団：2020年化学賞プレスリリース",url:"https://www.nobelprize.org/prizes/chemistry/2020/press-release/"}]};
+for(const e of EVENTS){if(SOURCES[e.id])e.sources=SOURCES[e.id];}
+EVENTS.find(e=>e.id==="fire").note="層準11の証拠は約179万〜107万年前の幅を持ち、特定の年を指すものではない。";
+EVENTS.find(e=>e.id==="aus").note="分子時計に基づく推定には誤差があり、筆者自身も検証の継続を呼びかけている。";
+EVENTS.find(e=>e.id==="tectonics").label="西暦1968年ごろ";
+EVENTS.find(e=>e.id==="crispr").label="西暦2012年ごろ";
+normalizeContent();
 boot();
 
 </script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
