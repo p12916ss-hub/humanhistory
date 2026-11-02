@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>人類史タイムライン | Human Chronicle</title>
+<title>138億年の人類史</title>
 <meta name="theme-color" content="#14110b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +29,6 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 .topbar{position:sticky;top:0;z-index:50;background:rgba(20,17,11,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:10px 16px 9px}
 .topbar-in{max-width:680px;margin:0 auto}
 .brandrow{display:flex;align-items:center;justify-content:space-between;height:40px}
-.brand .eyebrow{display:block;font-family:var(--num);font-size:9.5px;font-weight:600;letter-spacing:.28em;color:var(--dim)}
 .brand .title{display:block;font-size:16px;font-weight:700;letter-spacing:.06em;line-height:1.3}
 .iconbtn{width:38px;height:38px;border:1px solid var(--line2);border-radius:12px;display:grid;place-items:center;color:var(--sub)}
 .iconbtn svg{width:17px;height:17px}
@@ -47,9 +46,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 
 /* ---------- hero ---------- */
 .hero{padding:30px 2px 6px}
-.hero .eyebrow{font-family:var(--num);font-size:10px;font-weight:600;letter-spacing:.3em;color:var(--dim)}
 .hero h1{font-size:29px;font-weight:600;line-height:1.42;letter-spacing:.02em;margin:10px 0 12px}
-.hero .lead{font-size:13px;color:var(--sub);line-height:2}
 .revhead{display:flex;align-items:center;gap:12px;margin:26px 0 12px}
 .revhead span{font-size:12.5px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
 .revhead::after{content:"";flex:1;height:1px;background:var(--line2)}
@@ -122,10 +119,6 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 .shint{font-size:11px;color:var(--dim);margin-top:10px;line-height:1.9}
 #results .ev{margin-top:0}
 
-/* ---------- footer ---------- */
-footer{max-width:680px;margin:0 auto;padding:30px 16px 50px;border-top:1px solid var(--line);font-size:10.5px;color:var(--dim);line-height:1.9}
-footer .serif{font-size:12px;color:var(--sub)}
-
 @media (min-width:720px){
   .hero h1{font-size:34px}
 }
@@ -141,8 +134,7 @@ footer .serif{font-size:12px;color:var(--sub)}
   <div class="topbar-in">
     <div class="brandrow">
       <div class="brand">
-        <span class="eyebrow">HUMAN CHRONICLE</span>
-        <span class="title serif">人類史タイムライン</span>
+        <span class="title serif">138億年の人類史</span>
       </div>
       <button class="iconbtn" id="searchBtn" aria-label="出来事を検索">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -156,19 +148,12 @@ footer .serif{font-size:12px;color:var(--sub)}
 
 <div class="page">
   <section class="hero">
-    <span class="eyebrow">SCALE OF 13.8 BILLION YEARS</span>
-    <h1 class="serif">138億年を、<br>画面の奥へ降りていく。</h1>
-    <p class="lead">ビッグバンから生成AIまで。時系列で「大きな流れ」をなぞり、気になる出来事をタップして深掘りする、人類史を縦に読むための個人用アプリ。上の細い帯が全時間（ログスケール）、白い線がいま読んでいる位置。</p>
+    <h1 class="serif">138億年の人類史</h1>
     <div class="revhead"><span>まず、5つの転換点だけ。</span></div>
     <div class="revs" id="revs"></div>
   </section>
   <div id="timeline"></div>
 </div>
-
-<footer>
-  <span class="serif">HUMAN CHRONICLE — 人類史タイムライン</span><br>
-  単一HTML・データはJS配列で管理 / GitHub Pages で公開前提の個人用アプリ。年代は学習用の概数。
-</footer>
 
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true">
@@ -228,7 +213,7 @@ function buildRevs(){
 
 function buildTimeline(){
   $("#timeline").innerHTML=ERAS.map(e=>{
-    const evs=EVENTS.filter(v=>v.era===e.id);
+    const evs=EVENTS.filter(v=>v.era===e.id).sort((a,b)=>a.y-b.y);
     const a=frac(e.from)*100, b=frac(e.to)*100;
     return `<section class="era" id="era-${e.id}" style="--c:${e.color}">
       <div class="era-eyebrow"><span>${esc(e.range)}</span><span class="cnt">${evs.length}出来事</span></div>
@@ -340,7 +325,7 @@ function boot(){
 }
 const ERAS=[
 {id:"origin",name:"起源",range:"ビッグバン〜30万年前",from:-13800000000,to:-300000,color:"#a08bd8",
- blurb:"宇宙から人類まで、138億年。星々が重い元素を作り、地球が生まれ、海で生命が育った。この途方もない前史の果てに、ようやく「私たち」が登場する。人類自身の歴史は、実全体の長さに比べればごく浅い表面にすぎない。"},
+ blurb:"宇宙から人類まで、138億年。星々が重い元素を作り、地球が生まれ、海で生命が育った。この途方もない前史の果てに、ようやく「私たち」が登場する。人類自身の歴史は、実全体の長さに比べればごく浅い表面にすぎない。そしてこの時代の終わりには、地球上に複数の「人類」が並び立っていた。"},
 {id:"forager",name:"狩猟採集",range:"約30万〜1万年前",from:-300000,to:-10000,color:"#c9a23c",
  blurb:"言語と「虚構」を語る力を得たサピエンスが、地球の隅々へ広がる。小さな集団で自然とともに生きる時代は人類史の9割以上を占め、変化は緩やかで、格差も小さかった。私たちの身体と心は、この時代でほぼ完成している。"},
 {id:"agri",name:"農業革命",range:"約1万〜5500年前",from:-10000,to:-5200,color:"#7e9e4f",
@@ -389,6 +374,10 @@ const EVENTS=[
  s:"二足歩行が確立していた、残された足跡の化石。",
  d:"タンザニアの火山灰に刻まれた3人が並んで歩いた足跡が、300万年以上前の姿をそのまま伝える。骨だけでは分からない直立二足歩行の「動作」の証拠であり、手が自由になったことが後の石器と文化の土台となる。",
  tags:["人類","進化"]},
+{id:"habilis",era:"origin",y:-2800000,label:"約280万年前",t:"ホモ・ハビリスの登場",
+ s:"最初の「人属（ホモ属）」。石の道具を本格的に使い始めた小型の人類。",
+ d:"約280万〜240万年前のアフリカに現れた、人属の最初の種とされる（分類には議論がある）。「handy man（器用な人）」の名の通りオールドワン文化の石器を使いこなした。道具という「体の外の器官」を得たことが転機となり、ここから人類の進化は脳の大型化と技術の協力進化へ進んでいく。",
+ tags:["人類","進化","技術"]},
 {id:"oldowan",era:"origin",y:-2500000,label:"約250万年前",t:"最古の石器",
  s:"石を打ち欠けたオールドワン文化。技術と知性の始まり。",
  d:"エチオピアなどで見つかった粗末な打製石器は、ホモ・ハビリスとされる人類が肉を切り、骨を割っていた証拠だ。「作る」ことを覚えたことが脳の拡大と食性の変化を後押しし、技術の連鎖が始まった。",
@@ -401,6 +390,10 @@ const EVENTS=[
  s:"外のエネルギーを使い、調理が脳を大きくした。",
  d:"暖房・防衛・調理。とくに調理は消化を体外で行うことに等しく、少ない臓器コストで高カロリーを得られるようにした。ランガムの「調理仮説」では、これが大型化する脳を支えたとされる。人類最初の技術革命である。",
  tags:["人類","技術","エネルギー"]},
+{id:"heidelberg",era:"origin",y:-600000,label:"約60万年前",t:"ホモ・ハイデルベルゲンシス",
+ s:"ネアンデルタール人と私たちサピエンスの、直近の共通祖先。",
+ d:"約60万年前ごろに生息した人類で、脳容量は現代人並みに近づいていた。大規模な狩りの協力や道具の洗練が進み、ドイツのシェーニンゲンから出土した約30万年前の木製投げ槍はこの段階の技量を示す。アフリカに残った系統がサピエンスへ、ヨーロッパへ進出した系統がネアンデルタール人へと分岐していく。",
+ tags:["人類","進化"]},
 {id:"sapiens",era:"origin",y:-300000,label:"約30万年前",t:"ホモ・サピエンスの誕生",
  s:"私たちの種がアフリカで登場した。",
  d:"モロッコのジェベル・イルード遺跡などから、サピエンスの化石が約30万年前までさかのぼることが分かっている。同時期のアフリカには複数の人類が共存しており、私たちが唯一の「人間」になるのは、このずっと後の話である。",
@@ -426,10 +419,18 @@ const EVENTS=[
  s:"人類は一種になった。ただし遺伝子は混ざった。",
  d:"ヨーロッパの氷河地帯に適応していたネアンデルタール人は、サピエンスの到来後まもなく姿を消した。しかし全現代人のゲノムの数%はネアンデルタール由来であり、「絶滅」と「混ざり合い」が同時に起きていた。",
  tags:["人類","進化"]},
+{id:"denisova",era:"forager",y:-160000,label:"約16万年前ごろ",t:"デニソワ人",
+ s:"指の骨ひとつからDNAで発見された、もう一つの「人類」。",
+ d:"シベリアのデニソワ洞窟で出土した指骨のゲノム解析（2010年）から識別された人類。チベット高原で見つかった約16万年前の顎骨との同定も進む。現代のオセアニアや東アジアの人々のゲノムに数%残り、チベット人の高所順応遺伝子はデニソワ人由来とされる。ネアンデルタール人との混血個体「デニー」も見つかっている。",
+ tags:["人類","進化"]},
 {id:"jomon",era:"forager",y:-16000,label:"約1万6000年前",t:"縄文土器",
  s:"世界最古級の土器が、日本列島で作られていた。",
  d:"大陸では土器は農業とセットで発明されることが多いが、日本列島では豊かな海と森が、農業なしの定住的生活を支えた。狩猟採集でありながら集落と祭祀をもつ縄文の姿は、「農業=進歩」の単線的物語を揺さぶる好例である。",
  tags:["日本","技術"]},
+{id:"flores",era:"forager",y:-74000,label:"約10万〜5万年前",t:"ホモ・フロレシエンシス（ホビット）",
+ s:"身長約1メートル。サピエンスと同時代まで生きた小さな「人類」。",
+ d:"インドネシア・フローレス島のリアンブア洞窟で2003年に発見。身長約1.1m、脳容量はチンパンジー並みの約400ccながら、石器を使い協力して狩りをしていたとみられる。長期の孤島生活で体が小型化したと考えられ（島の法則）、約5万年前ごろまで存続した。人類の形がいかに柔軟かを示す好例である。",
+ tags:["人類","進化"]},
 {id:"gobekli",era:"forager",y:-9500,label:"約1万1500年前",t:"ゴベクリ・テペ",
  s:"農業のはるか手前に、巨大な石の聖域が建てられた。",
  d:"トルコ東部のこの遺跡では、T字型の巨石が円形に並べられ、彫刻が施されていた。狩猟採集民が大規模な共同作業を遂行できた証拠であり、「農業が先、都市と宗教が後」という順序を覆す発見として有名になった。",
