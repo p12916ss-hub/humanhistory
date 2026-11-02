@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>人類史タイムライン | Human Chronicle</title>
+<meta name="theme-color" content="#14110b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Georama:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14110b; --card:#1e1a13; --card2:#242019; --line:#332c20; --line2:#4a4130;
+  --text:#eae2d3; --sub:#ada189; --dim:#83785f; --accent:#c9a23c;
+  --tbh:82px;
+  --serif:"Shippori Mincho","Hiragino Mincho ProN",serif;
+  --sans:"Noto Sans JP","Hiragino Sans",sans-serif;
+  --num:"Georama","Noto Sans JP",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:rgba(200,160,60,.15)}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.serif{font-family:var(--serif)}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.page{max-width:680px;margin:0 auto;padding:0 16px 80px}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(20,17,11,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:10px 16px 9px}
+.topbar-in{max-width:680px;margin:0 auto}
+.brandrow{display:flex;align-items:center;justify-content:space-between;height:40px}
+.brand .eyebrow{display:block;font-family:var(--num);font-size:9.5px;font-weight:600;letter-spacing:.28em;color:var(--dim)}
+.brand .title{display:block;font-size:16px;font-weight:700;letter-spacing:.06em;line-height:1.3}
+.iconbtn{width:38px;height:38px;border:1px solid var(--line2);border-radius:12px;display:grid;place-items:center;color:var(--sub)}
+.iconbtn svg{width:17px;height:17px}
+.gauge{position:relative;margin-top:8px;height:10px;border-radius:5px;overflow:hidden;background:#0d0b07;border:1px solid var(--line)}
+.gauge .seg{position:absolute;top:0;bottom:0;opacity:.9}
+.gauge .seg+.seg{border-left:1px solid rgba(20,17,11,.9)}
+.playhead{position:absolute;top:-2px;bottom:-2px;width:3px;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.8);border-radius:2px;transition:left .12s linear}
+
+/* ---------- era chips ---------- */
+.chips{position:sticky;top:var(--tbh);z-index:40;display:flex;gap:6px;overflow-x:auto;padding:9px 16px;background:rgba(20,17,11,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips-in{display:flex;gap:6px;margin:0 auto}
+.chip{flex:0 0 auto;font-size:12px;font-weight:500;color:var(--sub);border:1px solid var(--line2);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.chip.on{background:var(--c);border-color:var(--c);color:#14110b;font-weight:700}
+
+/* ---------- hero ---------- */
+.hero{padding:30px 2px 6px}
+.hero .eyebrow{font-family:var(--num);font-size:10px;font-weight:600;letter-spacing:.3em;color:var(--dim)}
+.hero h1{font-size:29px;font-weight:600;line-height:1.42;letter-spacing:.02em;margin:10px 0 12px}
+.hero .lead{font-size:13px;color:var(--sub);line-height:2}
+.revhead{display:flex;align-items:center;gap:12px;margin:26px 0 12px}
+.revhead span{font-size:12.5px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
+.revhead::after{content:"";flex:1;height:1px;background:var(--line2)}
+.revs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px 8px}
+.revs::-webkit-scrollbar{display:none}
+.rev{flex:0 0 138px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px 10px}
+.rev .n{font-family:var(--serif);font-size:19px;font-weight:600;color:var(--rc);line-height:1.2}
+.rev .nm{display:block;font-size:13px;font-weight:700;margin-top:2px}
+.rev .yr{display:block;font-family:var(--num);font-size:10.5px;color:var(--sub);margin-top:3px;letter-spacing:.03em}
+.rev .go{display:block;font-size:9.5px;color:var(--dim);margin-top:6px;letter-spacing:.1em}
+
+/* ---------- era sections ---------- */
+.era{padding-top:34px;scroll-margin-top:calc(var(--tbh) + 56px)}
+.era-eyebrow{display:flex;align-items:center;gap:8px;font-family:var(--num);font-size:10.5px;font-weight:600;letter-spacing:.18em;color:var(--sub)}
+.era-eyebrow::before{content:"";width:20px;height:3px;border-radius:2px;background:var(--c)}
+.era-eyebrow .cnt{margin-left:auto;color:var(--dim);letter-spacing:.05em}
+.era h2{font-size:25px;font-weight:600;letter-spacing:.03em;margin:6px 0 8px}
+.era .blurb{font-size:12.5px;color:var(--sub);line-height:1.95}
+.minigauge{margin-top:12px}
+.minigauge .track{position:relative;height:6px;border-radius:3px;background:#0d0b07;border:1px solid var(--line)}
+.minigauge .mark{position:absolute;top:-1px;bottom:-1px;border-radius:3px;background:var(--c)}
+.minigauge .cap{display:flex;justify-content:space-between;font-family:var(--num);font-size:8.5px;letter-spacing:.14em;color:var(--dim);margin-top:4px}
+
+/* ---------- event cards ---------- */
+.tl{margin-top:16px;position:relative}
+.ev{display:grid;grid-template-columns:22px 1fr;gap:0 10px;width:100%;text-align:left;padding:0;margin:0 0 10px;transition:transform .2s ease}
+.ev:active{transform:scale(.985)}
+.ev .rail{position:relative}
+.ev .rail::before{content:"";position:absolute;left:9px;top:0;bottom:-10px;width:2px;background:linear-gradient(var(--c2),var(--c2))}
+.ev:last-child .rail::before{bottom:auto;height:22px}
+.ev .dot{position:absolute;left:5px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px var(--bg),0 0 0 4px var(--c2)}
+.evcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px 13px}
+.evcard time{font-family:var(--num);font-size:11.5px;font-weight:600;color:var(--c);letter-spacing:.05em}
+.evcard .t{display:block;font-size:15px;font-weight:700;line-height:1.5;margin-top:3px}
+.evcard .s{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:12px;color:var(--sub);line-height:1.75;margin-top:4px}
+.evcard .more{display:inline-block;font-size:10px;color:var(--dim);letter-spacing:.12em;margin-top:7px}
+
+/* ---------- bottom sheet ---------- */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.62);opacity:0;pointer-events:none;transition:opacity .25s;z-index:60}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:70;transform:translateY(103%);transition:transform .32s cubic-bezier(.32,.72,.24,1)}
+.sheet.on{transform:none}
+.sheet-in{max-width:680px;margin:0 auto;background:#1b1712;border:1px solid var(--line2);border-bottom:none;border-radius:20px 20px 0 0;padding:10px 20px calc(22px + env(safe-area-inset-bottom));max-height:88dvh;overflow-y:auto}
+.handle{width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 14px}
+.sheet .pillrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sheet .pill{font-size:10.5px;font-weight:700;letter-spacing:.08em;border-radius:999px;padding:3px 10px;background:rgba(255,255,255,.07);background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c)}
+.sheet time{font-family:var(--num);font-size:13px;font-weight:600;color:var(--c);letter-spacing:.05em}
+.sheet h3{font-size:21px;font-weight:600;line-height:1.5;margin:8px 0 10px;letter-spacing:.02em}
+.sheet .d{font-size:13.5px;line-height:2.05;color:#d8cfbd}
+.sheet .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.sheet .tag{font-size:10.5px;color:var(--sub);border:1px solid var(--line2);border-radius:999px;padding:2px 9px}
+.sheet .sect{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--sub);margin:20px 0 8px;display:flex;align-items:center;gap:10px}
+.sheet .sect::after{content:"";flex:1;height:1px;background:var(--line)}
+.rel{display:flex;gap:6px;flex-wrap:wrap}
+.rel button{font-size:11.5px;color:var(--text);background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:6px 11px;text-align:left}
+.rel button .ry{font-family:var(--num);font-size:9.5px;color:var(--sub);display:block}
+.pn{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:22px}
+.pn button{font-size:12px;color:var(--sub);border:1px solid var(--line2);border-radius:12px;padding:10px;text-align:center}
+.sheet .x{position:sticky;top:0;float:right;margin:-4px -8px 0 0;width:36px;height:36px;display:grid;place-items:center;color:var(--sub);z-index:2}
+
+/* ---------- search overlay ---------- */
+.searcho{position:fixed;inset:0;z-index:80;background:var(--bg);display:none;flex-direction:column}
+.searcho.on{display:flex}
+.searcho-in{max-width:680px;width:100%;margin:0 auto;padding:14px 16px;overflow-y:auto}
+.srow{display:flex;gap:10px;align-items:center}
+.sinput{flex:1;background:var(--card);border:1px solid var(--line2);border-radius:12px;color:var(--text);font-family:inherit;font-size:16px;padding:11px 14px}
+.sinput::placeholder{color:var(--dim)}
+.scount{font-family:var(--num);font-size:11px;color:var(--sub);margin:12px 2px 8px;letter-spacing:.08em}
+.sempty{font-size:13px;color:var(--sub);padding:30px 4px;line-height:2}
+.shint{font-size:11px;color:var(--dim);margin-top:10px;line-height:1.9}
+#results .ev{margin-top:0}
+
+/* ---------- footer ---------- */
+footer{max-width:680px;margin:0 auto;padding:30px 16px 50px;border-top:1px solid var(--line);font-size:10.5px;color:var(--dim);line-height:1.9}
+footer .serif{font-size:12px;color:var(--sub)}
+
+@media (min-width:720px){
+  .hero h1{font-size:34px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brandrow">
+      <div class="brand">
+        <span class="eyebrow">HUMAN CHRONICLE</span>
+        <span class="title serif">人類史タイムライン</span>
+      </div>
+      <button class="iconbtn" id="searchBtn" aria-label="出来事を検索">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+    </div>
+    <div class="gauge" id="gauge" aria-hidden="true"><div class="playhead" id="playhead" style="left:0%"></div></div>
+  </div>
+</header>
+
+<nav class="chips" aria-label="時代で移動"><div class="chips-in" id="chips"></div></nav>
+
+<div class="page">
+  <section class="hero">
+    <span class="eyebrow">SCALE OF 13.8 BILLION YEARS</span>
+    <h1 class="serif">138億年を、<br>画面の奥へ降りていく。</h1>
+    <p class="lead">ビッグバンから生成AIまで。時系列で「大きな流れ」をなぞり、気になる出来事をタップして深掘りする、人類史を縦に読むための個人用アプリ。上の細い帯が全時間（ログスケール）、白い線がいま読んでいる位置。</p>
+    <div class="revhead"><span>まず、5つの転換点だけ。</span></div>
+    <div class="revs" id="revs"></div>
+  </section>
+  <div id="timeline"></div>
+</div>
+
+<footer>
+  <span class="serif">HUMAN CHRONICLE — 人類史タイムライン</span><br>
+  単一HTML・データはJS配列で管理 / GitHub Pages で公開前提の個人用アプリ。年代は学習用の概数。
+</footer>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <div class="sheet-in" id="sheetIn"></div>
+</div>
+
+<div class="searcho" id="searcho">
+  <div class="searcho-in">
+    <div class="srow">
+      <input class="sinput" id="sinput" type="search" placeholder="出来事・時代・テーマで検索" autocomplete="off">
+      <button class="iconbtn" id="sClose" aria-label="検索を閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="shint" id="shint">例：仏陀 / 蒸気機関 / 農業 / ペスト / イスラーム / ダーウィン</div>
+    <div class="scount" id="scount" hidden></div>
+    <div id="results"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* log-scale position of a year on the full timeline (宇宙→2100年) */
+const YMIN=-1.5e10, YMAX=2200, LMIN=Math.log10(-YMIN), LSPAN=Math.log10(YMAX-YMIN)-LMIN;
+function frac(y){return (Math.log10(y-YMIN)-LMIN)/LSPAN;}
+
+let ERA_BY_ID={}, evIndex=new Map(), currentSheet=0;
+
+function makeCard(ev){
+  const era=ERA_BY_ID[ev.era];
+  return `<button class="ev" data-ev="${ev.id}" style="--c:${era.color};--c2:${era.color}55">
+    <span class="rail" aria-hidden="true"><span class="dot"></span></span>
+    <span class="evcard"><time>${esc(ev.label)}</time><span class="t">${esc(ev.t)}</span><span class="s">${esc(ev.s)}</span><span class="more">読む →</span></span>
+  </button>`;
+}
+
+function buildGauge(){
+  $("#gauge").insertAdjacentHTML("afterbegin", ERAS.map(e=>{
+    const a=frac(e.from)*100, b=frac(e.to)*100;
+    return `<div class="seg" style="left:${a}%;width:${b-a}%;background:${e.color}" title="${esc(e.name)}"></div>`;
+  }).join(""));
+}
+
+function buildChips(){
+  $("#chips").innerHTML=ERAS.map(e=>`<button class="chip" data-era="${e.id}" style="--c:${e.color}">${esc(e.name)}</button>`).join("");
+}
+
+function buildRevs(){
+  $("#revs").innerHTML=REVS.map(r=>{
+    const e=ERA_BY_ID[r.era];
+    return `<button class="rev" data-era="${r.era}" style="--rc:${e.color}"><span class="n">${r.n}</span><span class="nm">${esc(r.name)}</span><span class="yr">${esc(r.yr)}</span><span class="go">時代へ →</span></button>`;
+  }).join("");
+}
+
+function buildTimeline(){
+  $("#timeline").innerHTML=ERAS.map(e=>{
+    const evs=EVENTS.filter(v=>v.era===e.id);
+    const a=frac(e.from)*100, b=frac(e.to)*100;
+    return `<section class="era" id="era-${e.id}" style="--c:${e.color}">
+      <div class="era-eyebrow"><span>${esc(e.range)}</span><span class="cnt">${evs.length}出来事</span></div>
+      <h2 class="serif">${esc(e.name)}</h2>
+      <p class="blurb">${esc(e.blurb)}</p>
+      <div class="minigauge" aria-hidden="true">
+        <div class="track"><div class="mark" style="left:${a}%;width:${b-a}%"></div></div>
+        ${e.id==="origin"?'<div class="cap"><span>138億年前</span><span>時間の深さ（ログスケール）</span><span>現在</span></div>':''}
+      </div>
+      <div class="tl">${evs.map(makeCard).join("")}</div>
+    </section>`;
+  }).join("");
+}
+
+function openEvent(id){
+  const i=EVENTS.findIndex(e=>e.id===id);
+  if(i<0)return;
+  currentSheet=i;
+  renderSheet();
+  $("#scrim").classList.add("on");
+  $("#sheet").classList.add("on");
+  document.body.style.overflow="hidden";
+  $("#sheetIn").scrollTop=0;
+}
+function closeSheet(){
+  $("#scrim").classList.remove("on");
+  $("#sheet").classList.remove("on");
+  document.body.style.overflow="";
+}
+function renderSheet(){
+  const ev=EVENTS[currentSheet], era=ERA_BY_ID[ev.era];
+  const rel=EVENTS.map((v,j)=>({j,n:v.tags.filter(t=>ev.tags.includes(t)).length}))
+    .filter(v=>v.n>0&&v.j!==currentSheet).sort((a,b)=>b.n-a.n||Math.abs(EVENTS[a.j].y-ev.y)-Math.abs(EVENTS[b.j].y-ev.y)).slice(0,6);
+  $("#sheetIn").innerHTML=`
+    <button class="x" id="sheetX" aria-label="閉じる"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="handle"></div>
+    <div class="pillrow" style="--c:${era.color}"><span class="pill">${esc(era.name)}</span><time>${esc(ev.label)}</time></div>
+    <h3 class="serif">${esc(ev.t)}</h3>
+    <p class="d">${esc(ev.d)}</p>
+    <div class="tags">${ev.tags.map(t=>`<span class="tag">#${esc(t)}</span>`).join("")}</div>
+    <div class="sect">関連する出来事</div>
+    <div class="rel">${rel.map(v=>`<button data-ev="${EVENTS[v.j].id}"><span class="ry">${esc(EVENTS[v.j].label)}</span>${esc(EVENTS[v.j].t)}</button>`).join("")||'<span class="tag">—</span>'}</div>
+    <div class="pn">
+      <button data-ev="${EVENTS[(currentSheet-1+EVENTS.length)%EVENTS.length].id}">← 前の出来事</button>
+      <button data-ev="${EVENTS[(currentSheet+1)%EVENTS.length].id}">次の出来事 →</button>
+    </div>`;
+  $("#sheetX").addEventListener("click",closeSheet);
+}
+
+/* scroll: active chip + playhead descent */
+let ranges=[];
+function measure(){
+  ranges=ERAS.map(e=>{
+    const el=document.getElementById("era-"+e.id);
+    return {id:e.id,from:e.from,to:e.to,top:el.offsetTop,bottom:el.offsetTop+el.offsetHeight};
+  });
+}
+function onScroll(){
+  if(!ranges.length)return;
+  const c=scrollY+innerHeight*0.5;
+  let r=ranges.find(r=>c>=r.top&&c<r.bottom)||ranges[0];
+  document.querySelectorAll(".chip").forEach(ch=>ch.classList.toggle("on",ch.dataset.era===r.id));
+  const p=Math.min(1,Math.max(0,(c-r.top)/(r.bottom-r.top)));
+  $("#playhead").style.left=(frac(r.from+(r.to-r.from)*p)*100)+"%";
+}
+function scrollToEra(id){
+  document.getElementById("era-"+id).scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* search */
+function openSearch(){$("#searcho").classList.add("on");$("#sinput").focus();renderSearch();}
+function closeSearch(){$("#searcho").classList.remove("on");$("#sinput").value="";renderSearch();}
+function renderSearch(){
+  const q=$("#sinput").value.trim();
+  const cnt=$("#scount"), res=$("#results"), hint=$("#shint");
+  if(!q){cnt.hidden=true;res.innerHTML="";hint.hidden=false;return;}
+  const ql=q.toLowerCase();
+  const hits=EVENTS.filter(e=>(e.t+e.s+e.d+e.tags.join()+e.label).toLowerCase().includes(ql));
+  hint.hidden=true;
+  cnt.hidden=false;
+  cnt.textContent=`${hits.length}件`;
+  res.innerHTML=hits.length
+    ? `<div class="tl" style="margin-top:8px">${hits.map(makeCard).join("")}</div>`
+    : `<div class="sempty">該当する出来事はありません。別の語で試してください（例：革命 / 帝国 / 文字）。</div>`;
+}
+
+/* shared click delegation */
+document.addEventListener("click",e=>{
+  const ev=e.target.closest("[data-ev]");
+  if(ev){openEvent(ev.dataset.ev);return;}
+  const er=e.target.closest("[data-era]");
+  if(er){scrollToEra(er.dataset.era);}
+});
+$("#scrim").addEventListener("click",closeSheet);
+$("#searchBtn").addEventListener("click",openSearch);
+$("#sClose").addEventListener("click",closeSearch);
+$("#sinput").addEventListener("input",renderSearch);
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){closeSheet();closeSearch();}
+});
+let tick=false;
+addEventListener("scroll",()=>{if(!tick){tick=true;requestAnimationFrame(()=>{onScroll();tick=false;});}},{passive:true});
+addEventListener("resize",()=>{measure();onScroll();});
+
+function boot(){
+  ERAS.forEach(e=>ERA_BY_ID[e.id]=e);
+  buildGauge();buildChips();buildRevs();buildTimeline();
+  measure();onScroll();
+}
+const ERAS=[
+{id:"origin",name:"起源",range:"ビッグバン〜30万年前",from:-13800000000,to:-300000,color:"#a08bd8",
+ blurb:"宇宙から人類まで、138億年。星々が重い元素を作り、地球が生まれ、海で生命が育った。この途方もない前史の果てに、ようやく「私たち」が登場する。人類自身の歴史は、実全体の長さに比べればごく浅い表面にすぎない。"},
+{id:"forager",name:"狩猟採集",range:"約30万〜1万年前",from:-300000,to:-10000,color:"#c9a23c",
+ blurb:"言語と「虚構」を語る力を得たサピエンスが、地球の隅々へ広がる。小さな集団で自然とともに生きる時代は人類史の9割以上を占め、変化は緩やかで、格差も小さかった。私たちの身体と心は、この時代でほぼ完成している。"},
+{id:"agri",name:"農業革命",range:"約1万〜5500年前",from:-10000,to:-5200,color:"#7e9e4f",
+ blurb:"氷期の終わりと気候の安定を追い風に、人類は植物と動物を飼いならす。食べられる場所が増えて人口が爆発し、定住と余剰が生まれた。ただし労働は増え、栄養は偏り、病気は広がった — 「進歩」の最初の代償でもある。"},
+{id:"civ",name:"文明の誕生",range:"約5500〜2800年前",from:-5200,to:-2800,color:"#c77e3e",
+ blurb:"余剰を数えて管理する必要から、文字と官僚制が生まれた。都市と国家が立ち上がり、王と神、税と法が発明される。少数のエリートが多数を統治するという社会の構造は、ここで一度に完成する。"},
+{id:"classic",name:"古代帝国",range:"紀元前2800年〜紀元500年",from:-2800,to:500,color:"#b54d62",
+ blurb:"軸軸時代、ユーラシアの各地で普遍的な思想と宗教が花開く。ペルシア、ローマ、漢といった大帝国が広域を統治し、シルクロードが東西を結んだ。帝国と普遍宗教という「世界」の枠組みは、以後2000年使われ続ける。"},
+{id:"medieval",name:"中世",range:"500〜1450年",from:500,to:1450,color:"#4665b8",
+ blurb:"イスラーム、キリスト教、仏教という世界宗教が社会の骨格となった時代。ペストや戦乱の合間に、宋の経済革命やモンゴルによるユーラシアの平定があり、世界は少しずつ、確実に繋がっていった。"},
+{id:"early",name:"近世",range:"1450〜1760年",from:1450,to:1760,color:"#3fa0a8",
+ blurb:"大航海が世界をひとつの経済に結び、活版印刷が知識のコストを暴落させ、科学革命が自然の見方を根底から変えた。産業革命に必要な部品 — 資本・市場・科学・国家 — は、すべてこの時代に揃う。"},
+{id:"modern",name:"近代",range:"1760〜1945年",from:1760,to:1945,color:"#a85c8f",
+ blurb:"石炭と蒸気が人間の筋肉を置き換え、国民国家と資本主義が世界を再編した。生活水準は史上初めて飛躍的に上昇する一方、帝国主義、世界大戦、ホロコーストという新たな惨禍も同じ土台から生まれた。"},
+{id:"now",name:"現代",range:"1945年〜現在",from:1945,to:2100,color:"#e0574f",
+ blurb:"二度の世界大戦の後に核とコンピュータ、そしてインターネットが来た。史上まれに見る平和と繁栄の中で、人類は初めて「自らの惑星と種の未来」を制御できる位置に立った。歴史はまだ、序盤である。"}
+];
+
+const REVS=[
+{era:"forager",n:"Ⅰ",name:"認知革命",yr:"約7万年前"},
+{era:"agri",n:"Ⅱ",name:"農業革命",yr:"約1万年前"},
+{era:"civ",n:"Ⅲ",name:"文字と国家",yr:"約5000年前"},
+{era:"modern",n:"Ⅳ",name:"産業革命",yr:"1769年"},
+{era:"now",n:"Ⅴ",name:"情報革命",yr:"1947年〜"}
+];
+
+const EVENTS=[
+/* ---- 起源 ---- */
+{id:"bigbang",era:"origin",y:-13800000000,label:"約138億年前",t:"ビッグバン",
+ s:"宇宙・時間・空間そのものが始まった。全ての物語の第0章。",
+ d:"極小・高温・高密度の状態から宇宙が急速な膨張を始めた。最初の数分で水素とヘリウムの原子核が作られ、それが冷えて原子となり、数億年かけて恒星と銀河へ凝集していく。夜空に輝く星々の材料は、この瞬間にほぼ揃った。",
+ tags:["宇宙","物理"]},
+{id:"earth",era:"origin",y:-4600000000,label:"約46億年前",t:"地球の誕生",
+ s:"太陽の周囲の塵が集まって、青い惑星が生まれた。",
+ d:"原始太陽を囲む円盤の岩石と金属が衝突を繰り返し、地球が形成された。形成直後の巨大な衝突で飛び出した物質が月となったと考えられている。地表が冷えて海が生まれると、人類史への長い助走が始まる。",
+ tags:["宇宙","地球"]},
+{id:"life",era:"origin",y:-3800000000,label:"約38億年前",t:"生命の誕生",
+ s:"海の中で、代謝と複製をもつ最初の細胞が現れた。",
+ d:"深海の熱水噴出孔や浅い海の鉱物が触媒となり、自己複製する分子と代謝を備えた細胞が生まれた。以後30億年以上、生命は単細胞のまま進化を続け、光合成によって大気に酸素を蓄えていく。すべての現生生物はこの単一の祖先の子孫である。",
+ tags:["生命","進化"]},
+{id:"split",era:"origin",y:-7000000,label:"約700万年前",t:"人類とチンパンジーの分岐",
+ s:"アフリカで、ヒトの祖先がチンパンジーの系統と別れた。",
+ d:"森林が減り草原が広がったアフリカで、二足歩行をする系統が枝分かれした。チャドで発見されたサヘラントロプスは最古級の候補だ。以後、アウストラロピテクスなど多様な猿人が並行して生きる「ブッシュ状の進化」が進む。",
+ tags:["人類","進化"]},
+{id:"laetoli",era:"origin",y:-3600000,label:"約360万年前",t:"ラエトリの足跡",
+ s:"二足歩行が確立していた、残された足跡の化石。",
+ d:"タンザニアの火山灰に刻まれた3人が並んで歩いた足跡が、300万年以上前の姿をそのまま伝える。骨だけでは分からない直立二足歩行の「動作」の証拠であり、手が自由になったことが後の石器と文化の土台となる。",
+ tags:["人類","進化"]},
+{id:"oldowan",era:"origin",y:-2500000,label:"約250万年前",t:"最古の石器",
+ s:"石を打ち欠けたオールドワン文化。技術と知性の始まり。",
+ d:"エチオピアなどで見つかった粗末な打製石器は、ホモ・ハビリスとされる人類が肉を切り、骨を割っていた証拠だ。「作る」ことを覚えたことが脳の拡大と食性の変化を後押しし、技術の連鎖が始まった。",
+ tags:["人類","技術"]},
+{id:"erectus",era:"origin",y:-1800000,label:"約180万年前",t:"ホモ・エレクトスの出アフリカ",
+ s:"人類初の「グローバル種」がアフリカを出た。",
+ d:"体格が大きく歩行に優れたホモ・エレクトスは、ユーラシア大陸へ分布を広げ、東アジアや東南アジアまで到達した。アシュール文化の手斧（ハンドアックス）へと石器も進化し、長距離の移動と計画的な行動が可能になった。",
+ tags:["人類","進化"]},
+{id:"fire",era:"origin",y:-800000,label:"約80万年前",t:"火の制御",
+ s:"外のエネルギーを使い、調理が脳を大きくした。",
+ d:"暖房・防衛・調理。とくに調理は消化を体外で行うことに等しく、少ない臓器コストで高カロリーを得られるようにした。ランガムの「調理仮説」では、これが大型化する脳を支えたとされる。人類最初の技術革命である。",
+ tags:["人類","技術","エネルギー"]},
+{id:"sapiens",era:"origin",y:-300000,label:"約30万年前",t:"ホモ・サピエンスの誕生",
+ s:"私たちの種がアフリカで登場した。",
+ d:"モロッコのジェベル・イルード遺跡などから、サピエンスの化石が約30万年前までさかのぼることが分かっている。同時期のアフリカには複数の人類が共存しており、私たちが唯一の「人間」になるのは、このずっと後の話である。",
+ tags:["人類"]},
+/* ---- 狩猟採集 ---- */
+{id:"oa2",era:"forager",y:-100000,label:"約10万〜6万年前",t:"サピエンスの出アフリカ",
+ s:"サピエンスがアフリカを出て全世界へ広がる。",
+ d:"気候変動と技術の進歩を背景に、サピエンスはシナイからユーラシアへ、さらに海を渡ってサフール大陸（豪州・ニューギニア）まで到達した。残った集団が農業時代に爆発的に増えるまで、人類の総人口は数百万程度に保たれていた。",
+ tags:["人類","移動"]},
+{id:"cognitive",era:"forager",y:-70000,label:"約7万年前",t:"認知革命",
+ s:"「虚構」を語れる言語を得て、大規模協力が可能になった。",
+ d:"サピエンスの言語は、実際のこと以外に「ないもの・あり得ないもの」を語れた。神々や部族の掟といった共有された架空の物語が、血縁を超えた数百人の協力を可能にした。ハラリの『サピエンス全史』でも、大規模協力を支えるのは共有された物語だと示されている。",
+ tags:["言語","宗教","協力"]},
+{id:"aus",era:"forager",y:-65000,label:"約6万5000年前",t:"オーストラリア到達",
+ s:"乗り物も地図もないのに、海を渡って大陸に渡った。",
+ d:"當時の海面より低かったとはいえ、見えない陸地への70km以上の航海を含む移動だったとされる。到達後まもなく大型動物の大量絶滅が起き、狩猟技術と火の利用が「世界の姿」を初めて大きく変えた。",
+ tags:["移動","環境"]},
+{id:"art",era:"forager",y:-36000,label:"約3万6000年前",t:"洞窟壁画の全盛",
+ s:"シュヴァル洞窟など、象徴と芸術の爆発。",
+ d:"フランスのシュヴァル洞窟には3万6000年前の動物画がびっしりと描かれ、のちのショーヴェ、ラスコー、アルタミラへと続く。抽象的な記号も共通して見られ、サピエンスの世界には「意味」が満ちていた。",
+ tags:["芸術","宗教"]},
+{id:"neanderthal",era:"forager",y:-40000,label:"約4万年前",t:"ネアンデルタール人の消長",
+ s:"人類は一種になった。ただし遺伝子は混ざった。",
+ d:"ヨーロッパの氷河地帯に適応していたネアンデルタール人は、サピエンスの到来後まもなく姿を消した。しかし全現代人のゲノムの数%はネアンデルタール由来であり、「絶滅」と「混ざり合い」が同時に起きていた。",
+ tags:["人類","進化"]},
+{id:"jomon",era:"forager",y:-16000,label:"約1万6000年前",t:"縄文土器",
+ s:"世界最古級の土器が、日本列島で作られていた。",
+ d:"大陸では土器は農業とセットで発明されることが多いが、日本列島では豊かな海と森が、農業なしの定住的生活を支えた。狩猟採集でありながら集落と祭祀をもつ縄文の姿は、「農業=進歩」の単線的物語を揺さぶる好例である。",
+ tags:["日本","技術"]},
+{id:"gobekli",era:"forager",y:-9500,label:"約1万1500年前",t:"ゴベクリ・テペ",
+ s:"農業のはるか手前に、巨大な石の聖域が建てられた。",
+ d:"トルコ東部のこの遺跡では、T字型の巨石が円形に並べられ、彫刻が施されていた。狩猟採集民が大規模な共同作業を遂行できた証拠であり、「農業が先、都市と宗教が後」という順序を覆す発見として有名になった。",
+ tags:["宗教","協力"]},
+/* ---- 農業革命 ---- */
+{id:"wheat",era:"agri",y:-9500,label:"約1万1500年前",t:"麦の栽培開始",
+ s:"レヴァントで一粒コムギが選択され、人類が「生産」を始めた。",
+ d:"豊かな実りを残す個体を採し、翌年その種をまく。この単純な繰り返しが、人類と植物の共生関係を作った。以後、小麦・大麦・豆類が中東から広がり、人類の食と大地の景観を根本から変えていく。",
+ tags:["農業"]},
+{id:"livestock",era:"agri",y:-9000,label:"約1万1000年前",t:"動物の家畜化",
+ s:"ヒツジ、ヤギ、そしてやがて牛と馬。動く財産の誕生。",
+ d:"狩りの獲物を飼って増やすことで、食肉と皮革、乳や毛を継続的に得られるようになった。家畜は「壊れない財産」を生み、富の蓄積と身分の差、さらには人畜共通感染症という新しい病の源にもなった。",
+ tags:["農業","経済"]},
+{id:"indep",era:"agri",y:-8000,label:"約1万〜5000年前",t:"世界各地の独立した農業",
+ s:"中国・メソアメリカ・パプアなどで、農業がそれぞれ発明された。",
+ d:"長江流域の稲、メソアメリカのトウモロコシ、パプアのタロイモやバナナなど、農業は世界中で何度も独立に発明された。共通していたのは、気候の安定と飼いならせる植物の存在。「発明」は点ではなく、面上の現象だった。",
+ tags:["農業"]},
+{id:"village",era:"agri",y:-7000,label:"約9000年前",t:"定住村の拡大",
+ s:"倉庫と家と墓。土地に縛られる暮らしが始まった。",
+ d:"カタ・ホユックやヤリモなど、数百〜数千人が暮らす村がレヴァントやアナトリアに広がった。収穫物の貯蔵が生まれ、家と土地という「持ち物」の観念が、階層と相続の芽となる。人類はここから「所有」する生き物になった。",
+ tags:["農業","都市"]},
+{id:"beer",era:"agri",y:-6000,label:"約8000年前",t:"酒の誕生",
+ s:"余剰穀物が発酵し、祭りと信仰と外交の飲み物になった。",
+ d:"麦の余剰からビールとワインが生まれ、酒は神への捧げ物、契約の儀式、労働の報酬として社会の結び目になった。ハンムラビ法典には酒場の営業規定まである。余剰の使い道として、人類はいち早く「楽しみ」を選んだ。",
+ tags:["文化","農業"]},
+{id:"price",era:"agri",y:-5000,label:"農業革命の代償",t:"「史上最大の詐欺」という見方",
+ s:"農業は人類を養ったが、個人の暮らしは悪化させた。",
+ d:"ハラリの有名な議論によれば、農民は採集民より労働時間が長く、食事は偏り、疫病と飢饉にさらされた。得をしたのは人口と、その上に立つ権力者と宗教と軍隊だ。進歩の利益とコストが一致しない、歴史の最初の事例である。",
+ tags:["農業","社会"]},
+/* ---- 文明の誕生 ---- */
+{id:"uruk",era:"civ",y:-4000,label:"約6000年前",t:"ウルクと都市の誕生",
+ s:"数万人が暮らすメトロポリスが、メソポタミアに現れた。",
+ d:"灌漑農業の余剰が神殿と官僚と職人を養い、ウルクは世界最初の都市となった。多数を少数が支配するには、記録と神話と常備軍が必要だった。都市は後のすべての文明の「OS」ともいえる発明である。",
+ tags:["都市","国家"]},
+{id:"wheel",era:"civ",y:-3500,label:"約5500年前",t:"車輪と帆船",
+ s:"陸と海の輸送が一変し、物資と情報が動く。",
+ d:"メソポタミアで車輪つきの車が、ナイルで帆船が使われ始めた。人間の筋力を超えた輸送力は、都市間の交易を大規模化し、青銅器のような資源集約的な技術を支えた。物流こそ文明の血管である。",
+ tags:["技術","交通"]},
+{id:"writing",era:"civ",y:-3200,label:"約5200年前",t:"文字の発明",
+ s:"初めは会計のためだった。記憶の外付けが世界を変える。",
+ d:"シュメールの楔形文字とエジプトの聖刻文字は、ほぼ同時期に「数と物の記録」として生まれた。税と在庫を正確に残せる社会は、複雑な組織を大きくできる。以後、法・歴史・文学がすべて文字の上に積み上がっていく。",
+ tags:["文字","情報"]},
+{id:"egypt",era:"civ",y:-3100,label:"約5100年前",t:"エジプト統一王朝",
+ s:"ナイルの定期的な洪水が、安定した大王国を作った。",
+ d:"上下エジプトが統一され、ファラオを頂点とする中央集権国家が約3000年続く。予測可能な洪水と豊かな黒土が税の安定を生み、「永遠」を自豪できる文明の型を作った。",
+ tags:["国家"]},
+{id:"pyramid",era:"civ",y:-2560,label:"約4500年前",t:"ギザの大ピラミッド完成",
+ s:"230万個の石。プロジェクト管理の原始形。",
+ d:"約147mの大ピラミッドは、20年ほどで完成したとされる。奴隷ではなく給与を得る労働者部隊が輪番で作業したと考えられており、計画・物流・労務という「組織」の力の記念碑である。",
+ tags:["国家","技術"]},
+{id:"hammurabi",era:"civ",y:-1750,label:"約3700年前",t:"ハンムラビ法典",
+ s:"「目には目を」。書かれた法と社会の階層。",
+ d:"バビロニアの王ハンムラビが282条の法を石柱に刻ませた。身分ごとに罰の重さが異なる条文は、当時の社会が階層で編成されていたことを正直に示す。同時に「法は王の上ではなく文字の中にある」という発想の端緒でもある。",
+ tags:["法","国家"]},
+{id:"bronze",era:"civ",y:-1200,label:"約3200年前",t:"青銅器崩壊",
+ s:"東地中海の文明がほぼ同時に崩れた。鉄が主役に代わる。",
+ d:"気候乾燥化、移民の移動、システムの脆弱性が重なり、ヒッタイトやエジプト新王国などが相次いで衰退した。崩壊ののちに鉄器が普及する — 高価な青銅の独占を崩し、農民にも開かれた「安い武器と道具」の時代が来る。",
+ tags:["技術","戦争"]},
+{id:"zhou",era:"civ",y:-1046,label:"約3000年前",t:"周の成立と天命",
+ s:"中国の青銅器国家が、「支配は正当であるべき」と語り始めた。",
+ d:"周は商（殷）を倒し、「天命を得た者が支配する」という思想を打ち立てた。政治の正当性を神話ではなく理念で説明する発想は、後の儒教国家の基盤となる。",
+ tags:["国家","宗教"]}
+];
+
+EVENTS.push(
+/* ---- 古代帝国 ---- */
+{id:"axial",era:"classic",y:-800,label:"紀元前800年頃",t:"軸軸時代の始まり",
+ s:"ギリシャ・インド・中国で、普遍的な思想がほぼ同時に花開く。",
+ d:"ヤスパースの命名した「軸軸時代」に、ギリシャ哲学、仏教、諸子百家、預言者の宗教がほぼ同時期に登場した。人間は「自分がどう生きるべきか」を普遍的な問いとして立て始めた。偶然か、交流の結果か、いまも論じられている。",
+ tags:["哲学","宗教"]},
+{id:"confucius",era:"classic",y:-551,label:"紀元前551年",t:"孔子の誕生",
+ s:"家族と社会の倫理を説き、東アジアのOSを作った。",
+ d:"春秋戦国の混乱のなかで孔子は「仁」と礼を説いた。血縁を基礎に階層を秩序づける儒教の思想は、科挙を通じて2000年以上もの間、東アジアの国家と家庭を貫く枠組みとなる。",
+ tags:["哲学","国家"]},
+{id:"buddha",era:"classic",y:-500,label:"紀元前500年頃",t:"仏陀の説法",
+ s:"苦の原因と解脱を説き、個人に開かれた宗教を生んだ。",
+ d:"釈迦は縁起と四諦を説き、身分を問わず救いに至る道を示した。のちに大乗仏教としてアジア全域に広がり、シルクロードを渡って日本まで届く。世界宗教の最初の本格的な例の一つである。",
+ tags:["宗教"]},
+{id:"persia",era:"classic",y:-550,label:"紀元前550年",t:"アケメネス朝ペルシア",
+ s:"多民族を寛容に統治する、最初の「世界帝国」。",
+ d:"キュロス2世は多様な民族・宗教を認めつつ、街道と総督制で広域を統治した。帝国とは「征服」だけでなく「管理」であることを初めて本格的に示し、後のローマや漢のモデルとなる。",
+ tags:["国家","帝国"]},
+{id:"athens",era:"classic",y:-470,label:"紀元前470年頃",t:"ソクラテスとアテネの民主政",
+ s:"問いかけることで真理を探す。市民政治と哲学の出会い。",
+ d:"陶片追放や抽選による公職など、アテネの直接民主政は市民に議論を要求した。その市場でソクラテスは問いを続け、プラトンとアリストテレスを生んだ。「検証可能な議論」の伝統はここから始まる。",
+ tags:["哲学","政治"]},
+{id:"alexander",era:"classic",y:-336,label:"紀元前336年",t:"アレクサンドロスの東征",
+ s:"ギリシャからインドまで。東西文化が混ざり合う。",
+ d:"アレクサンドロス大王は短期間でペルシアを滅ぼしインドまで到達した。帝国は早く分裂したが、ギリシャ語と文化が広域に広がるヘレニズム時代が開き、ギリシャ化した仏教美術など、混交文化が生まれた。",
+ tags:["帝国","移動"]},
+{id:"qin",era:"classic",y:-221,label:"紀元前221年",t:"秦の中国統一",
+ s:"文字・貨幣・度量衡を統一。中央集権の極致。",
+ d:"始皇帝は戦国を終わらせ、郡県制、標準化、万里の長城で帝国を形づくった。あまりの急進で王朝は15年で滅びたが、後漢以後の中国は「統一が正統」という秦の遺産の上に立っている。",
+ tags:["国家","帝国"]},
+{id:"yayoi",era:"classic",y:-300,label:"紀元前300年頃",t:"稲作の伝来（弥生時代）",
+ s:"大陸から水田と金属器が日本列島へ。社会が動き出す。",
+ d:"朝鮮半島を経由して稲作、青銅器、鉄器が伝来し、定住集落が村からムラ・クニへと発展した。人口が増え、首長が生まれ、のちの邪馬台国と大和政権への道が開かれる。日本史の「文明の始まり」である。",
+ tags:["日本","農業"]},
+{id:"rome",era:"classic",y:-27,label:"紀元前27年",t:"ローマ帝政の開始",
+ s:"地中海を「私たちの海」に。パクス・ロマーナ。",
+ d:"アクテウムの海戦ののちオクタウィアヌスが帝政を確立し、ローマは約200年の安定を享受する。街道・水道・法・軍団 — 遠隔地を結ぶインフラと制度が、後世のすべての大帝国の参照点となった。",
+ tags:["帝国","法"]},
+{id:"jesus",era:"classic",y:30,label:"紀元30年頃",t:"キリスト教の成立",
+ s:"辺境の宗教が、やがてローマの国教になる。",
+ d:"イエスの活動を起点に、パウロの布教で地中海世界へ広がった。迫害されながらも信徒を増やし、313年のミラノ勅令で公認される。「唯一神・普遍の救い」という枠組みは、ヨーロッパ史を通じて政治と文化を規定し続ける。",
+ tags:["宗教"]},
+{id:"paper",era:"classic",y:105,label:"105年",t:"製紙法の発明",
+ s:"蔡倫の改良で、知識の記録コストが暴落した。",
+ d:"樹皮や布くずから作られる紙は、竹簡や羊皮紙よりはるかに安く軽かった。記録が安くなると書写と流通が増え、知識の蓄積が加速する。情報コストの低下が社会を変える — 現代のインターネットと同じ構図である。",
+ tags:["情報","技術"]},
+{id:"westrome",era:"classic",y:476,label:"476年",t:"西ローマ帝国の崩壊",
+ s:"「古代」の枠組みが終わり、新しい地域秩序が始まる。",
+ d:"ゲルマン系将軍による最後の皇帝の廃位をもって、西ローマの終わりとされる。帝国は分裂と多元的な王国の群れに姿を変え、東のビザンツはなお千年続く。崩壊と再生が隣り合う時代の入り口である。",
+ tags:["帝国"]},
+/* ---- 中世 ---- */
+{id:"hijra",era:"medieval",y:622,label:"622年",t:"イスラームの勃興",
+ s:"預言者ムハンマドがメディナへ。世界宗教と文明圏が生まれる。",
+ d:"アラビア半島から始まったイスラームは、1世紀で西はイベリア、東は中央アジアまで広がった。学問・商業・法をひとつの枠組みで結ぶイスラーム圏は、のちの中世世界の知的なハブとなる。",
+ tags:["宗教","国家"]},
+{id:"taras",era:"medieval",y:751,label:"751年",t:"製紙法の西伝（タラスの戦い）",
+ s:"技術は国境を越えて流れる。紙がヨーロッパを変える。",
+ d:"中央アジアのタラスでの戦いののち、唐に捕虜となった職人を通じて製紙法がイスラーム世界へ、さらに12世紀頃ヨーロッパへ伝わった。書物が安くなると大学や都市の知識層が育ち、ルネサンスの土台が堆積していく。",
+ tags:["情報","移動"]},
+{id:"charlemagne",era:"medieval",y:800,label:"800年",t:"カール大帝の戴冠",
+ s:"西欧の秩序の再建と、教会と王の長い結婚。",
+ d:"フランク王カールは西欧を広く統一し、ローマ教皇から帝冠を受けた。「皇帝と教会」という西欧の中世的枠組みがここにあり、修道院は古典を書写して知識を命綱で保存し続けた。",
+ tags:["国家","宗教"]},
+{id:"song",era:"medieval",y:960,label:"960年",t:"宋の経済革命",
+ s:"紙幣・羅針盤・火薬・大都市。中世世界の経済的先端は中国にあった。",
+ d:"宋では交子と呼ばれる紙幣が流通し、羅針盤で海運が発達し、火薬が兵器を変え、100万人級の都市が育った。人口は1億を超える。モンゴル経由でこれらの技術が世界へ渡ると、歴史の加速が変わる。",
+ tags:["経済","技術"]},
+{id:"kamakura",era:"medieval",y:1192,label:"1192年",t:"鎌倉幕府の成立",
+ s:"武家政権の始まり。日本の「二重権力」の型。",
+ d:"源頼朝は東国に武士の政権を開いた。以後、朝廷と武家が並立する構造が約700年続き、土地と軍事を束ねる封建的な秩序が、日本独自の国家のかたちを作っていく。",
+ tags:["日本","国家"]},
+{id:"crusade",era:"medieval",y:1096,label:"1096年",t:"十字軍の遠征",
+ s:"宗教の名の下の暴力と、その裏面での東西交流。",
+ d:"聖地奪還を掲げた遠征は2世紀近く続き、地中海世界の暴力と偏見を深めた。一方で、遠征と交易を通じてイスラーム圏の学問・技術・商品が欧州に流れ込み、ルネサンスへの伏線ともなった。",
+ tags:["宗教","戦争"]},
+{id:"mongol",era:"medieval",y:1206,label:"1206年",t:"モンゴル帝国の成立",
+ s:"チンギス・カンがユーラシアを一つの商圏にした。",
+ d:"史上最大の陸上帝国は、駅伝と通用する紙幣と寛容な宗教政策で東西を結んだ。パクス・モンゴリカの下で技術・信仰・物資が大移動する。その裏で、ペストも同じ道を高速で移動することになる。",
+ tags:["帝国","移動"]},
+{id:"plague",era:"medieval",y:1347,label:"1347年",t:"黒死病の大流行",
+ s:"人口の1/3が失われた。労働の値段が上がり、封建制が揺らぐ。",
+ d:"モンゴルの商路を伝ってペストが欧州に到達し、数年で凄まじい死者を出した。労働力の希少化は農民の交渉力を上げ、賃金が上がり、身分制度を長期的に掘り崩した。疫病が歴史を動かした最大級の例である。",
+ tags:["医療","社会"]},
+{id:"constantinople",era:"medieval",y:1453,label:"1453年",t:"コンスタンティノープル陥落",
+ s:"千年帝国が滅び、地理と時代の両方がひっくり返る。",
+ d:"オスマン帝国の攻撃でビザンツが滅亡すると、東地中海の交易路はオスマンの管理下に入り、西欧は「アジアへの別の道」を本気で探し始める。学者と書物の西遷はルネサンスを厚くした。中世の終わりの合図である。",
+ tags:["帝国","移動"]},
+/* ---- 近世 ---- */
+{id:"printing",era:"early",y:1455,label:"1455年",t:"活版印刷（グーテンベルク）",
+ s:"聖書が量産されると、読者の数が権力の数になる。",
+ d:"金属活字とプレスで書物が百倍速く作れるようになった。宗教改革も科学革命も、印刷された本なしには起らなかった。情報の複製コストが下がると社会が変わる — 手書き時代から500年、また同じ構造が繰り返される。",
+ tags:["情報","技術"]},
+{id:"columbus",era:"early",y:1492,label:"1492年",t:"コロンブスの航海",
+ s:"二つの生物圏が再結合し、世界経済がひとつになる。",
+ d:"大西洋を渡った航海は、白銀、作物、家畜、そして疫病と奴隷貿易を大規模に動かす「コロンブス交換」の始まりだった。以後の世界史は、ユーラシア中心から大西洋中心へと重心を移していく。",
+ tags:["移動","経済"]},
+{id:"luther",era:"early",y:1517,label:"1517年",t:"宗教改革",
+ s:"免罪符への95カ条の提唱が、西欧の精神統一を割った。",
+ d:"ルターの主張は活版印刷で数週間で全欧に広がった。教皇の権威に対し「聖書と信仰のみ」を掲げる運動は、国家の枠組みや読み書きの普及をも引き起こし、近代的な個人観の源流となる。",
+ tags:["宗教","情報"]},
+{id:"copernicus",era:"early",y:1543,label:"1543年",t:"地動説の出版",
+ s:"人間の居場所が宇宙の中心から外される。",
+ d:"コペルニクスは肉眼の観測と数学だけで、太陽中心の体系を提示した。ガリレオの望遠鏡とケプラーの楕円軌道を経て、ニュートンが重力で統一する。「観測と数学で世界を調べる」科学革命の始まりである。",
+ tags:["科学"]},
+{id:"eic",era:"early",y:1602,label:"1602年",t:"東インド会社",
+ s:"株式会社が海を渡る。国家に代わる経済の駆動体。",
+ d:"オランダ東インド会社は世界初の株式会社（VOC）として株を証券取引所に上場し、軍隊と領土をもつ巨大企業になった。資本とリスクを分散するこの発明は、以後のグローバル経済の基本装置となる。",
+ tags:["経済","企業"]},
+{id:"sakoku",era:"early",y:1639,label:"1639年",t:"鎖国と江戸の平和",
+ s:"約250年の無戦国。独自に熟成する都市文化。",
+ d:"幕府は対外関係を管理下に置いたが、国内では参勤交代の街道、大坂の市場、江戸の100万人都市が発達し、読本や浮世絵という大衆文化が咲いた。閉じた時代だからこそ積み上がった内発的な発展という見方もできる。",
+ tags:["日本","経済"]},
+{id:"newton",era:"early",y:1687,label:"1687年",t:"ニュートン『プリンキピア』",
+ s:"天上も地上も同じ法則。世界が機械として読める。",
+ d:"万有引力はケプラーの惑星とガリレオの落下をひとつの数学で統一した。自然が「法則」に従うなら、社会や経済にも法則があるはずだ — この発想が啓蒙思想と近代科学技術文明の前提になる。",
+ tags:["科学"]},
+/* ---- 近代 ---- */
+{id:"watt",era:"modern",y:1769,label:"1769年",t:"ワットの蒸気機関",
+ s:"石炭が筋肉の限界を外す。産業革命の心臓。",
+ d:"改良蒸気機関は鉱山、工場、鉄道、船へと広がり、生産と輸送の規模を一気に拡大した。人類は植物の光合成という収入を超えて、過去の太陽光（化石燃料）を使い始める。人口と生活水準のカーブはここで曲がる。",
+ tags:["エネルギー","技術"]},
+{id:"frenchrev",era:"modern",y:1789,label:"1789年",t:"フランス革命",
+ s:"「人権」が宣言され、国民国家と民主主義の波が走る。",
+ d:"バスティーユ牢獄の襲撃から人権宣言、そして混乱と戦争を経て、主権は君主から「国民」へ移り始めた。19世紀の革命と独立の波は、この宣言の子孫である。",
+ tags:["政治"]},
+{id:"darwin",era:"modern",y:1859,label:"1859年",t:"ダーウィン『種の起源』",
+ s:"人間が自然の外ではなく、自然の中に置かれた。",
+ d:"変異と自然選択で生物の多様性を説明するこの理論は、人間観・宗教観・生物学を根底から変えた。遺伝学と分子生物学がこれを裏付け、進化論は現代人類学や行動科学の基盤にもなっている。",
+ tags:["科学","進化"]},
+{id:"meiji",era:"modern",y:1868,label:"1868年",t:"明治維新",
+ s:"非西洋圏で最速クラスの近代化。日本の急進的な再編。",
+ d:"江戸幕府が終わり、新政府は中央集権、徴兵、学制、殖産興業を一気に進めた。西洋の制度を翻訳して移植する過程で生まれた産学協調と国家主導の工業化は、以後の日本の発展と苦悩の両方の源になる。",
+ tags:["日本","政治"]},
+{id:"edison",era:"modern",y:1879,label:"1879年",t:"電球と電化",
+ s:"夜が消え、工場と家がひとつの電力網に繋がる。",
+ d:"エジソンの白熱電球と配電システムは、照明と動力を電気へ移す第二次産業革命の象徴である。モーター、電話、ラジオ、テレビ — 20世紀の生活はすべてこの電力インフラの上に載っている。",
+ tags:["エネルギー","技術"]},
+{id:"ww1",era:"modern",y:1914,label:"1914年",t:"第一次世界大戦",
+ s:"機械化された総力戦が、4つの帝国を滅ぼした。",
+ d:"鉄道と動員、機関銃と毒ガス。約7000万人が動員され、1000万人以上が死んだ。戦後はウイルス性インフルエンザがさらに数千万人を奪い、欧州中心の秩序は崩れ、米国とソ連の時代の予兆となる。",
+ tags:["戦争","医療"]},
+{id:"depression",era:"modern",y:1929,label:"1929年",t:"世界恐慌",
+ s:"ニューヨークの株価暴落が世界を巻き込んだ。経済の連動と政策の誤り。",
+ d:"金本位制と債務の連鎖の中で、銀行の連鎖破綻が世界の生産を3割縮めた。失業とデフレは既存政党への信頼を砕き、ファシズムの台頭を許す。ケインズとニューディール政策という「国家の経済管理」がここから生まれる。",
+ tags:["経済"]},
+{id:"ww2",era:"modern",y:1939,label:"1939年",t:"第二次世界大戦",
+ s:"6000万〜8000万人が死んだ。人類は核という後戻りできない技術を得る。",
+ d:"ホロコーストや原爆投下を含むこの戦争は、国家と技術の暴力がどこまで届くかを示した。戦後、国連・人権宣言・核抑止による暴力的な均衡という、いまも使われている世界の枠組みが、廃墟の上に作られた。",
+ tags:["戦争"]},
+/* ---- 現代 ---- */
+{id:"un",era:"now",y:1945,label:"1945年",t:"原爆と国連",
+ s:"核の影と国際協力。現代世界の二本柱が同時に立つ。",
+ d:"広島・長崎への原爆投下は、科学と国家の暴力の頂点だった。同年発足した国連は、大国の合意を前提にした不徹底な機構でありながら、80年近く大国間戦争を避けさせてきた。私たちは今もこの二重構造の中にいる。",
+ tags:["戦争","協力"]},
+{id:"transistor",era:"now",y:1947,label:"1947年",t:"トランジスタの発明",
+ s:"砂の中の小さなスイッチが、情報時代の種になった。",
+ d:"ベル研究所のトランジスタは、真空管に比べて小さく安く壊れなかった。集積回路、マイクロプロセッサ、メモリ — 計算コストが指数関数的に下がる「ムーアの法則」の物理的な始点であり、すべての電子機器の胚細胞である。",
+ tags:["情報","技術"]},
+{id:"sputnik",era:"now",y:1957,label:"1957年",t:"スプートニク打ち上げ",
+ s:"宇宙時代の開幕。科学技術への国家投資が加速する。",
+ d:"世界初の人工衛星の打ち上げは米国に衝撃を与え、NASAの設立と教育投資、そしてアポロ計画への道を開いた。冷戦の競争が宇宙開発とコンピュータの発展を加速させた構造は、現代の技術競争にも通じる。",
+ tags:["宇宙","科学"]},
+{id:"apollo",era:"now",y:1969,label:"1969年",t:"月面着陸",
+ s:"人類が初めて、他の天体に立った。",
+ d:"アポロ11号の着陸は、40万人が動員されたプロジェクトの勝利であり、地球を一つの球体として見せた瞬間でもあった。環境運動の高まりと「地球は青かった」のイメージは、同じ光景の裏表である。",
+ tags:["宇宙","技術"]},
+{id:"micro",era:"now",y:1971,label:"1971年",t:"マイクロプロセッサ",
+ s:"1チップのコンピュータ。計算が「安いもの」になる。",
+ d:"インテル4004はCPUを1つのチップに載せた。以後、計算能力は2年で2倍というペースで世界に浸透し、パソコン、携帯電話、組み込み機器 — あらゆる機械が「頭」を持つようになった。",
+ tags:["情報","技術"]},
+{id:"berlin",era:"now",y:1989,label:"1989年",t:"ベルリンの壁崩壊",
+ s:"冷戦が終わり、単一のグローバル経済が世界の標準になる。",
+ d:"東欧の自由化とソ連の解体で、米ソ対立の構図が消えた。市場経済と民主化が広がる「歴史の終わり」の勝利宣言の一方、経済格差と民族紛争が新しい時代の課題として姿を現した。",
+ tags:["政治","経済"]},
+{id:"www",era:"now",y:1991,label:"1991年",t:"WWWの公開",
+ s:"世界の文書が、ハイパーリンクでつながる。",
+ d:"CERNのバーナーズ=リーがウェブを無償で公開すると、インターネットは学者の網から人類の共有メモリになった。情報の複製と配布のコストがほぼゼロになり、検索、SNS、電子商取引がここから生まれる。",
+ tags:["情報"]},
+{id:"iphone",era:"now",y:2007,label:"2007年",t:"スマートフォンの登場",
+ s:"世界をポケットに。人類の半分が常時ネットワークに。",
+ d:"iPhone以後、インターネットは「行くもの」から「身につくもの」になった。認証、決済、地図、カメラが一つの装置に集約され、社会の行動パターンそのものが書き換えられた。歴史に残る大規模な行動変化である。",
+ tags:["情報","技術"]},
+{id:"covid",era:"now",y:2020,label:"2020年",t:"新型コロナのパンデミック",
+ s:"世界が同時に止まった初めての体験。",
+ d:"都市封鎖とワクチンの劇的な早期実用化は、科学とグローバル協力の力と限界の両方を示した。リモート化・デジタル化が一気に進み、すでに起きていた変化が数年単位で前倒しされた。",
+ tags:["医療","社会"]},
+{id:"ai",era:"now",y:2022,label:"2022年",t:"生成AIの登場",
+ s:"知識労働の機械化が始まった。人類史の「作業」の再定義。",
+ d:"大規模言語モデルの公開が、文章・コード・画像という「知識の操作」を機械に開いた。農業革命が筋肉の仕事を変え、産業革命が動力を変えたように、これは認知の仕事への最初の本格的な介入である。この時代に生きる者全員が、その使われ方を決める側にいる。",
+ tags:["情報","技術"]},
+{id:"future",era:"now",y:2050,label:"これから",t:"次の1万年へ",
+ s:"人類史はまだ序盤。農業から1万年、産業から250年。",
+ d:"気候変動、AI、老化の制御、宇宙進出 — 私たちは種の未来を実質的に決められる初めての世代である。このタイムラインの次の「大きな流れ」を書くのは、この画面を見ている誰かだ。",
+ tags:["未来"]}
+);
+boot();
+
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
