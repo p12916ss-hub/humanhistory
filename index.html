@@ -179,9 +179,22 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-/* log-scale position of a year on the full timeline (宇宙→2100年) */
-const YMIN=-1.5e10, YMAX=2200, LMIN=Math.log10(-YMIN), LSPAN=Math.log10(YMAX-YMIN)-LMIN;
-function frac(y){return (Math.log10(y-YMIN)-LMIN)/LSPAN;}
+/* compressed-time position (0..1) of a year for the depth gauges.
+   Piecewise-linear anchors at era boundaries: monotonic, every era stays
+   visible, deep time keeps the left half. (A raw log10(y+offset) formula
+   degenerates — LSPAN collapses to ~1e-7 — so we anchor by design.) */
+const T_ANCHORS=[[-13800000000,0],[-4600000000,.10],[-3800000000,.16],[-2500000,.30],
+ [-300000,.38],[-10000,.50],[-5200,.56],[-2800,.60],[500,.68],[1450,.76],[1760,.83],[1945,.90],[2100,1]];
+function frac(y){
+  if(y<=T_ANCHORS[0][0])return 0;
+  for(let i=1;i<T_ANCHORS.length;i++){
+    if(y<=T_ANCHORS[i][0]){
+      const a=T_ANCHORS[i-1],b=T_ANCHORS[i];
+      return a[1]+(b[1]-a[1])*(y-a[0])/(b[0]-a[0]);
+    }
+  }
+  return 1;
+}
 
 let ERA_BY_ID={}, evIndex=new Map(), currentSheet=0;
 
@@ -221,7 +234,7 @@ function buildTimeline(){
       <p class="blurb">${esc(e.blurb)}</p>
       <div class="minigauge" aria-hidden="true">
         <div class="track"><div class="mark" style="left:${a}%;width:${b-a}%"></div></div>
-        ${e.id==="origin"?'<div class="cap"><span>138億年前</span><span>時間の深さ（ログスケール）</span><span>現在</span></div>':''}
+        ${e.id==="origin"?'<div class="cap"><span>138億年前</span><span>時間の深さ（圧縮表示）</span><span>現在</span></div>':''}
       </div>
       <div class="tl">${evs.map(makeCard).join("")}</div>
     </section>`;
@@ -263,21 +276,37 @@ function renderSheet(){
   $("#sheetX").addEventListener("click",closeSheet);
 }
 
-/* scroll: active chip + playhead descent */
+/* scroll: active chip + playhead descent
+   window(era i) = [top_i, top_{i+1}) in "midline" coords c=scrollY+vh/2;
+   the last era ends at max scroll so the playhead can reach the far right. */
 let ranges=[];
 function measure(){
-  ranges=ERAS.map(e=>{
+  const secs=ERAS.map(e=>{
     const el=document.getElementById("era-"+e.id);
-    return {id:e.id,from:e.from,to:e.to,top:el.offsetTop,bottom:el.offsetTop+el.offsetHeight};
+    return {id:e.id,from:e.from,to:e.to,top:el?el.offsetTop:0};
   });
+  ranges=secs.map((r,i)=>Object.assign(r,{end:i<secs.length-1?secs[i+1].top:r.top+1}));
 }
-function onScroll(){
+function paint(){
   if(!ranges.length)return;
-  const c=scrollY+innerHeight*0.5;
-  let r=ranges.find(r=>c>=r.top&&c<r.bottom)||ranges[0];
+  const half=innerHeight/2;
+  const c=scrollY+half;
+  const last=ranges[ranges.length-1];
+  last.end=Math.max(last.top+1,document.documentElement.scrollHeight-half+1);
+  let r=ranges.find(r=>c>=r.top&&c<r.end)||ranges[0];
   document.querySelectorAll(".chip").forEach(ch=>ch.classList.toggle("on",ch.dataset.era===r.id));
-  const p=Math.min(1,Math.max(0,(c-r.top)/(r.bottom-r.top)));
+  const p=Math.min(1,Math.max(0,(c-r.top)/(r.end-r.top)));
   $("#playhead").style.left=(frac(r.from+(r.to-r.from)*p)*100)+"%";
+}
+/* one rAF-batched update that ALWAYS re-measures then repaints — a viewport
+   change (rotate / URL-bar / font settle / dynamic layout) can never leave
+   stale geometry behind. Re-measure is 9 offsetTop reads: negligible. */
+let scheduled=false;
+function update(){ measure(); paint(); }
+function schedule(){
+  if(scheduled)return;
+  scheduled=true;
+  requestAnimationFrame(()=>{scheduled=false;update();});
 }
 function scrollToEra(id){
   document.getElementById("era-"+id).scrollIntoView({behavior:"smooth",block:"start"});
@@ -314,14 +343,18 @@ $("#sinput").addEventListener("input",renderSearch);
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){closeSheet();closeSearch();}
 });
-let tick=false;
-addEventListener("scroll",()=>{if(!tick){tick=true;requestAnimationFrame(()=>{onScroll();tick=false;});}},{passive:true});
-addEventListener("resize",()=>{measure();onScroll();});
+addEventListener("scroll",schedule,{passive:true});
+addEventListener("resize",schedule);
+addEventListener("orientationchange",()=>{schedule();setTimeout(schedule,300);});
+if(window.visualViewport&&visualViewport.addEventListener)visualViewport.addEventListener("resize",schedule);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(schedule);
+addEventListener("load",schedule);
+if("ResizeObserver" in window)new ResizeObserver(schedule).observe(document.body);
 
 function boot(){
   ERAS.forEach(e=>ERA_BY_ID[e.id]=e);
   buildGauge();buildChips();buildRevs();buildTimeline();
-  measure();onScroll();
+  update();
 }
 const ERAS=[
 {id:"origin",name:"起源",range:"ビッグバン〜30万年前",from:-13800000000,to:-300000,color:"#a08bd8",
